@@ -1,12 +1,13 @@
 specs:
 9-bit instructions
 256 bytes of memory (8-bit addressable), byte-wide
-16 registers
+16 registers (8 bit wide)
 can only read/write memory once per instruction
 can only write to register file once per instruction
 can write an additional flag bit once per intruction
 can read multiple times from register file per instruction
 
+EVERYTHING IS ROUNDED AT LSB
 
 programs:
 p1 - multiplicative inverse
@@ -23,5 +24,17 @@ output format is: |2^15|..|2^-8|
 p3 - square root
 input: 16-bit unsigned integer (address 16-17)
 input format is: |2^15|..|2^0|
-output: 8-bit result (address 18) ROUNDED
-ouput format is: |2^7|..|2^0|   THIS IS ROUNDED (up at 0.5)
+output: 8-bit result (address 18)
+ouput format is: |2^7|..|2^0|
+
+LD      000 - |REG_DEST(3)|REG_MEM(3)|
+LDI     001 - |REGI(1)|IMM(5)| - 0 thru 31 in either R_14 or R_15
+ADD     010 - |REG1(3)|REG2(3)| - REG1 = REG1 + REG2
+SHIFTR  011 - |REG(3)|LR(1)|REGI(1)|FREE(1)| - shifts lr from either R_14 or R_15
+ST      100 - |REG_MEM(3)|REG_SRC(3)|
+BLT     101 - |REG(4)|TYPE(2)| - 00: eq 01: gt 10: lt 11: ne - maybe use a bit for pos/neg?
+SUB     110 - |REG1(3)|REG2(3)| - REG1 = REG1 - REG2
+MV      111 - |REG(4)|D(1)|REGI(1)| - replaces/moves REG to R_14 or R_15
+
+
+// ADDR    111 - |REG(3)|PN(1)|REGI(1)|FREE(1)| - adds/subs from either R_8 or R_9 

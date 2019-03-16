@@ -171,13 +171,13 @@ def program3(x_0):
 
     return x_curr
 
+"""
 x = 1003
 out = program1(int_to_bit(x))
 print "Output:", out
 print "Converted:", fbit_to_float(out,start=0,end=-15)
 print "Actual:", float(1)/x
 
-"""
 x = 2
 y = 120
 out = program2(int_to_bit(x), int_to_bit(y))
@@ -185,16 +185,13 @@ out = program2(int_to_bit(x), int_to_bit(y))
 print "Output:", out[:16], ".", out[16:]
 print "Converted:", fbit_to_float(out)
 print "Actual:", float(x)/y
-"""
 
-"""
 x = 15
 out = program3(int_to_bit(x))
 print "Output:", out
 print "Converted:", bit_to_int(out)
 print "Actual:", math.sqrt(x)
 """
-
 
 # program tests
 """
