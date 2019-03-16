@@ -1,4 +1,5 @@
-OVERFLOW_FLAG_ON = True
+import math
+OVERFLOW_FLAG_ON = False
 
 def int_to_bit(num, size=16):
     if num >= 2**size:
@@ -88,7 +89,149 @@ def sub(a,b):
     return add(a, twos_complement(b))
 
 
-# TESTS
+
+
+def program1(div):
+    out = [0] * 16
+
+    # divisor > 2^15 -> return 0
+    if bit_to_int(div) > 2**15:
+        return out
+
+    num = int_to_bit(2**15)
+
+    if bit_to_int(div[:8]) > 0:
+        m = msb(div[:8])
+        start = 15 - m
+        left_shift = m
+    else:
+        m = msb(div[8:])
+        start = 7 - m
+        left_shift = m + 8
+
+    shift_reg = int_to_bit(left_shift)
+    div = shift(div, 0, shift_reg)
+
+    for i in range(start, 16):
+
+        if bit_to_int(num) >= bit_to_int(div):
+            num = sub(num, div)
+            out[i] = 1
+
+        div = shift(div, 1, int_to_bit(1))
+
+    return out
+
+def program2(num, div):
+    num = num + [0]*8
+    div = int_to_bit(bit_to_int(div),size=24)
+    out = [0]*24
+
+    m = msb(div[-8:])
+    start = 7 - m
+    left_shift = 16 + m
+
+    shift_reg = int_to_bit(left_shift)
+    div = shift(div, 0, shift_reg)
+
+    for i in range(start, 24):
+
+        if bit_to_int(num) >= bit_to_int(div):
+            num = sub(num, div)
+            out[i] = 1
+
+        div = shift(div, 1, int_to_bit(1))
+
+    return out
+
+# NEED TO FIGURE OUT HOW TO ROUND THIS
+def program3(x_0):
+    x_curr = x_0
+
+    ITERS = 100
+    for _ in range(ITERS):
+        # x_next  = 0.5 * (x_curr + float(x_0)/x_curr)
+        # x_curr = x_next
+        
+        a = x_curr
+        # 8 most significant bits is MSB thru MSB+8
+        # only shift if x_curr[:8] > 0
+        left8 = x_curr[:8]
+        if bit_to_int(left8) > 0:
+            m = msb(left8)
+            x_curr_truncated = x_curr[m:m+8]
+        else:
+            x_curr_truncated = x_curr[-8:]
+
+        b = program2(x_0, x_curr_truncated)
+
+        c = add(a, b[:16])
+        c = shift(c, 1, int_to_bit(1))
+        x_curr = c
+
+    return x_curr
+
+x = 1003
+out = program1(int_to_bit(x))
+print "Output:", out
+print "Converted:", fbit_to_float(out,start=0,end=-15)
+print "Actual:", float(1)/x
+
+"""
+x = 2
+y = 120
+out = program2(int_to_bit(x), int_to_bit(y))
+
+print "Output:", out[:16], ".", out[16:]
+print "Converted:", fbit_to_float(out)
+print "Actual:", float(x)/y
+"""
+
+"""
+x = 15
+out = program3(int_to_bit(x))
+print "Output:", out
+print "Converted:", bit_to_int(out)
+print "Actual:", math.sqrt(x)
+"""
+
+
+# program tests
+"""
+for i in range(1, 2**16):
+    allowed_err = 2**-15
+    out = program1(int_to_bit(i))
+    converted = fbit_to_float(out,start=0,end=-15)
+    actual = float(1)/i
+    if converted > actual or abs(converted - actual) >= allowed_err:
+        print "FAIL"
+        print i
+"""
+
+"""
+for i in range(1, 2**10):
+    for j in range(1, 2**4):
+        allowed_err = 2**-7
+        out = program2(int_to_bit(i), int_to_bit(j))
+        converted = fbit_to_float(out)
+        actual = float(i)/j
+        if converted > actual or abs(converted - actual) >= allowed_err:
+            print "FAIL"
+            print i,j
+"""
+
+"""
+for i in range(1, 2**10):
+    allowed_err = 1
+    out = program3(int_to_bit(i))
+    converted = bit_to_int(out)
+    actual = math.sqrt(i)
+    if abs(converted - actual) > allowed_err:
+        print "FAIL"
+        print i
+"""
+
+# function tests
 """
 for i in range(2**5):
     b = int_to_bit(i)
@@ -113,7 +256,6 @@ bigint = 30144
 bigbit = int_to_bit(bigint)
 print shift(bigbit, five) == int_to_bit(942)
 
-OVERFLOW_FLAG_ON = False
 for i in range(2**5):
     for j in range(i+1):
         b1 = int_to_bit(i)
@@ -122,7 +264,6 @@ for i in range(2**5):
         if bit_to_int(b3) != i-j:
             print "FAIL"
             print bit_to_int(b3), i-j
-OVERFLOW_FLAG_ON = True
 
 for i in range(16):
     a = int_to_bit(65535)
@@ -140,78 +281,4 @@ for i in range(1,2**8):
     if m != msb_pos(b):
         print "FAIL"
         print m, msb_pos(b)
-"""
-
-OVERFLOW_FLAG_ON= False
-
-def program1(div):
-    out = [0] * 16
-
-    # divisor > 2^15 -> return 0
-    if bit_to_int(div) > 2**15:
-        return out
-
-    num = int_to_bit(2**15)
-    m = msb(div)
-    start = 7-m
-
-    left_shift = 15-start
-    shift_reg = int_to_bit(left_shift)
-    div = shift(div, 0, shift_reg)
-
-    for i in range(start, 16):
-
-        if bit_to_int(num) >= bit_to_int(div):
-            num = sub(num, div)
-            out[i] = 1
-
-        div = shift(div, 1, int_to_bit(1))
-
-    return out
-
-out = program1(int_to_bit(9))
-print "Output: ", out
-print "Converted: ", fbit_to_float(out,start=0,end=-15)
-
-def program2(num, div):
-    num = num + [0]*8
-    div = int_to_bit(bit_to_int(div),size=24)
-    out = [0]*23
-
-    m = msb(div)
-    start = 7-m
-
-    left_shift = 23 - start
-    shift_reg = int_to_bit(left_shift)
-    div = shift(div, 0, shift_reg)
-
-    for i in range(start, 24):
-
-        if bit_to_int(num) >= bit_to_int(div):
-            num = sub(num, div)
-            out[i] = 1
-
-        div = shift(div, 1, int_to_bit(1))
-
-    return out
-
-out = program2(int_to_bit(532), int_to_bit(13))
-
-print "Output: ", out[:16], ".", out[16:]
-print "Converted: ", fbit_to_float(out)
-
-"""
-
-def program3(num):
-    x_curr = num
-
-    for _ in range(10):
-        x_next  = 0.5 * (x_curr + float(num)/x_curr)
-        x_curr = x_next
-
-    return x_curr
-
-print "Output: ", program3(10)
-import math
-print "Sqtr: ", math.sqrt(10)
 """
