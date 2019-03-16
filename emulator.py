@@ -19,6 +19,13 @@ def bit_to_int(a):
         s += a[i]*2**(len(a)-i-1)
     return s
 
+def fbit_to_float(a,start=15,end=-8):
+    s = float(0)
+    e = range(start,end-1,-1)
+    for i in range(len(a)):
+        s += a[i]*2**(e[i])
+    return s
+
 def band(a,b):
     return [a[i] & b[i] for i in range(len(a))]
 def bor(a,b):
@@ -147,38 +154,51 @@ def program1(div):
     num = int_to_bit(2**15)
     m = msb(div)
     start = 7-m
+
+    left_shift = 15-start
+    shift_reg = int_to_bit(left_shift)
+    div = shift(div, 0, shift_reg)
+
     for i in range(start, 16):
 
-        left_shift_val = 15 - i
-        shift_reg = int_to_bit(left_shift_val)
-        shifted_div = shift(div, 0, shift_reg)
-
-        if bit_to_int(num) >= bit_to_int(shifted_div):
-            num = sub(num, shifted_div)
+        if bit_to_int(num) >= bit_to_int(div):
+            num = sub(num, div)
             out[i] = 1
+
+        div = shift(div, 1, int_to_bit(1))
 
     return out
 
-print "Output: ", program1(int_to_bit(9))
+out = program1(int_to_bit(9))
+print "Output: ", out
+print "Converted: ", fbit_to_float(out,start=0,end=-15)
 
-
-"""
 def program2(num, div):
+    num = num + [0]*8
+    div = int_to_bit(bit_to_int(div),size=24)
     out = [0]*23
 
     m = msb(div)
     start = 7-m
-    for i in range(start, 24):
-        left_shift_val = (15 - i) + 16
-        shift_reg = int_to_bit(left_shift_val)
-        shifted_div = shift(div, shift_reg)
 
-        if bit_to_int(num) >= bit_to_int(shifted_div):
-            num = sub(num, shifted_div)
+    left_shift = 23 - start
+    shift_reg = int_to_bit(left_shift)
+    div = shift(div, 0, shift_reg)
+
+    for i in range(start, 24):
+
+        if bit_to_int(num) >= bit_to_int(div):
+            num = sub(num, div)
             out[i] = 1
 
-print "Output: ", program2(int_to_bit(532), int_to_bit(13))
-"""
+        div = shift(div, 1, int_to_bit(1))
+
+    return out
+
+out = program2(int_to_bit(532), int_to_bit(13))
+
+print "Output: ", out[:16], ".", out[16:]
+print "Converted: ", fbit_to_float(out)
 
 """
 
