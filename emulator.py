@@ -36,15 +36,21 @@ def msb_pos(a):
         if a[i] == 1:
             return i
     return len(a)
+# actual one
+def msb(a):
+    msb = 8
+    check = int_to_bit(1)
+    for i in range(8):
+        if bit_to_int(a) >= bit_to_int(check):
+            msb = 7-i
+        check = shift(check, 0, int_to_bit(1))
+    return msb
 
-# NOT TWO COMPLEMENT FORMAT
-def shift(a, reg):
+# LEFT ON 0 RIGHT ON 1
+def shift(a, lr, reg):
     res = [0]*len(a)
-    # < 16 TO THE RIGHT - 0 thru 15 shifts right 0 thru 15
-    # >= 16 TO THE LEFT - 16 thru 31 shifts left 0 thru 15
-    shift_amt = bit_to_int(reg[-4:])
-    shift_lr = reg[-5]
-    if shift_lr == 0:
+    shift_amt = bit_to_int(reg[-5:])
+    if lr == 1:
         for i in range(shift_amt, len(a)):
             res[i] = a[i-shift_amt]
     else:
@@ -73,6 +79,7 @@ def sub(a,b):
         print "SUB ERR"
         return "SUB ERR"
     return add(a, twos_complement(b))
+
 
 # TESTS
 """
@@ -113,18 +120,23 @@ OVERFLOW_FLAG_ON = True
 for i in range(16):
     a = int_to_bit(65535)
     shift_reg = int_to_bit(i)
-    print shift(a, shift_reg)
+    print shift(a, 1, shift_reg)
 
 for i in range(16):
     a = int_to_bit(65535)
-    shift_reg = int_to_bit(i+16)
-    print shift(a, shift_reg)
-"""
+    shift_reg = int_to_bit(i)
+    print shift(a, 0, shift_reg)
 
+for i in range(1,2**8):
+    b = int_to_bit(i,size=8)
+    m = msb(b)
+    if m != msb_pos(b):
+        print "FAIL"
+        print m, msb_pos(b)
+"""
 
 OVERFLOW_FLAG_ON= False
 
-
 def program1(div):
     out = [0] * 16
 
@@ -133,61 +145,42 @@ def program1(div):
         return out
 
     num = int_to_bit(2**15)
-    for i in range(16):
+    m = msb(div)
+    start = 7-m
+    for i in range(start, 16):
 
-
-        right_shift_val = 15 - i
-        shift_reg = int_to_bit(right_shift_val)
-        shifted_num = shift(num, shift_reg)
-
-        left_shift_val = 15 - i + 16
+        left_shift_val = 15 - i
         shift_reg = int_to_bit(left_shift_val)
-        shifted_div = shift(div, shift_reg)
+        shifted_div = shift(div, 0, shift_reg)
 
-        if bit_to_int(shifted_num) >= bit_to_int(div):
+        if bit_to_int(num) >= bit_to_int(shifted_div):
             num = sub(num, shifted_div)
             out[i] = 1
 
     return out
 
-asdf = int_to_bit(9)
-print "Output: ", program1(asdf)
+print "Output: ", program1(int_to_bit(9))
 
-def program1(div):
-    out = [0] * 16
-
-    # divisor > 2^15 -> return 0
-    if bit_to_int(div) > 2**15:
-        return out
-
-    num = int_to_bit(2**15)
-    for i in range(16):
-
-
-        right_shift_val = 15 - i
-        shift_reg = int_to_bit(right_shift_val)
-        shifted_num = shift(num, shift_reg)
-
-        left_shift_val = 15 - i + 16
-        shift_reg = int_to_bit(left_shift_val)
-        shifted_div = shift(div, shift_reg)
-
-        if bit_to_int(shifted_num) >= bit_to_int(div):
-            num = sub(num, shifted_div)
-            out[i] = 1
-
-    return out
-
-asdf = int_to_bit(9)
-print "Output: ", program1(asdf)
 
 """
+def program2(num, div):
+    out = [0]*23
 
-def program2(a, b):
-    return float(a)/b
+    m = msb(div)
+    start = 7-m
+    for i in range(start, 24):
+        left_shift_val = (15 - i) + 16
+        shift_reg = int_to_bit(left_shift_val)
+        shifted_div = shift(div, shift_reg)
 
-print "Output: ", program2(10, 3)
-print "Division: ", float(10)/3
+        if bit_to_int(num) >= bit_to_int(shifted_div):
+            num = sub(num, shifted_div)
+            out[i] = 1
+
+print "Output: ", program2(int_to_bit(532), int_to_bit(13))
+"""
+
+"""
 
 def program3(num):
     x_curr = num
