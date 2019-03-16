@@ -1,0 +1,27 @@
+specs:
+9-bit instructions
+256 bytes of memory (8-bit addressable), byte-wide
+16 registers
+can only read/write memory once per instruction
+can only write to register file once per instruction
+can write an additional flag bit once per intruction
+can read multiple times from register file per instruction
+
+
+programs:
+p1 - multiplicative inverse
+input: 16-bit unsigned integer (address 8-9)
+input format is: |2^15|..|2^0|
+output: 16-bit fractional result (address 10-11)
+output format is: |2^0|..|2^-15|
+
+p2 - division
+input: 16-bit unsigned integer numerator (address 0-1), 8-bit unsigned integer divisor (address 2)
+output: 16-bit unsigned integer quotient + 8-bit unsigned quotient fraction (address 4-6)
+output format is: |2^15|..|2^-8|
+
+p3 - square root
+input: 16-bit unsigned integer (address 16-17)
+input format is: |2^15|..|2^0|
+output: 8-bit result (address 18) ROUNDED
+ouput format is: |2^7|..|2^0|   THIS IS ROUNDED (up at 0.5)
