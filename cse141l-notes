@@ -27,16 +27,24 @@ input format is: |2^15|..|2^0|
 output: 8-bit result (address 18)
 ouput format is: |2^7|..|2^0|
 
-LD      000 - |REG_DEST(3)|REG_MEM(3)|
-ST      100 - |REG_SRC(3)|REG_MEM(3)|
-ADD     010 - |REG1(3)|REG2(3)| - REG1 = REG1 + REG2
-SUB     110 - |REG1(3)|REG2(3)| - REG1 = REG1 - REG2
+LD      0000 - |REG_DEST(4)|
+ST      0001 - |MEM_DEST(4)|
 
-ACC     001 - |IMM(6)|
-SHIFT   011 - |REG(3)|FREE(2)|LR(1)|
-MV      111 - |REG(4)|FREE(1)|D(1)|
+ADD     0010 - |REG(4)|C(1)| - REG = REG + ACC
+SUB     0011 - |REG(4)|C(1)| - REG = REG - ACC
 
-BLT     101 - |REG(3)|TYPE(3)|
+SHL     0100 - |REG(4)|C(1)| - whether or not we use carry in
+SHR     0101 - |REG(3)|C(1)|
+
+MOV     1100 - |REG(4)|D(1)|
+ClR     1101 - |REG(4)|
+MSB     1110 - |REG(4)|
+ACC     1111 - |IMM(5)|
+
+CCC
+INC
+
+BR      1010 - |REG(4)|TYPE(1)|
 
 0 - shift left
 1 - shift right
@@ -47,7 +55,8 @@ BLT     101 - |REG(3)|TYPE(3)|
 true ? a : b = a
 
 Special registers:
-R_15 - accumulator
+R_15, accumulator
+R_14, branch comparison register
 R_13, branch target register
 R_12, carry out register
 R_11, carry in register

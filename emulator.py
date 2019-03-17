@@ -97,20 +97,23 @@ def program1(div):
     # divisor > 2^15 -> return 0
     if bit_to_int(div) > 2**15:
         return out
+#    if msb $r0 == 7
+#    if msb(div[:8]) == 0:
+#        return out
 
     num = int_to_bit(2**15)
 
     if bit_to_int(div[:8]) > 0:
         m = msb(div[:8])
-        start = 15 - m
         left_shift = m
+        start = 15 - m
     else:
         m = msb(div[8:])
-        start = 7 - m
         left_shift = m + 8
+        start = 7 - m
 
-    shift_reg = int_to_bit(left_shift)
-    div = shift(div, 0, shift_reg)
+    for i in range(left_shift):
+      div = shift(div, 0, int_to_bit(1))
 
     for i in range(start, 16):
 
@@ -194,7 +197,6 @@ print "Actual:", math.sqrt(x)
 """
 
 # program tests
-"""
 for i in range(1, 2**16):
     allowed_err = 2**-15
     out = program1(int_to_bit(i))
@@ -203,7 +205,6 @@ for i in range(1, 2**16):
     if converted > actual or abs(converted - actual) >= allowed_err:
         print "FAIL"
         print i
-"""
 
 """
 for i in range(1, 2**10):
