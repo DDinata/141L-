@@ -155,26 +155,27 @@ def program2(num, div):
 
 # NEED TO FIGURE OUT HOW TO ROUND THIS
 def program3(x_0):
-    x_curr = x_0
+    x_curr = [0]*15 + [1]
 
     ITERS = 100
     for _ in range(ITERS):
         # x_next  = 0.5 * (x_curr + float(x_0)/x_curr)
         # x_curr = x_next
         
+        """
         a = x_curr
         # 8 most significant bits is MSB thru MSB+8
         # only shift if x_curr[:8] > 0
         left8 = x_curr[:8]
-        if bit_to_int(left8) > 0:
+        if bit_to_int(left8) == 0:
+            x_curr_truncated = x_curr[-8:]
+        else:
             m = msb(left8)
             x_curr_truncated = x_curr[m:m+8]
-        else:
-            x_curr_truncated = x_curr[-8:]
+        """
 
-        b = program2(x_0, x_curr_truncated)
-
-        c = add(a, b[:16])
+        b = program2(x_0, x_curr[8:])
+        c = add(x_curr, b[:16])
         c = shift(c, 1, int_to_bit(1))
         x_curr = c
 
@@ -202,6 +203,7 @@ print "Converted:", bit_to_int(out)
 print "Actual:", math.sqrt(x)
 """
 
+"""
 # program tests
 for i in range(1, 2**16):
     allowed_err = 2**-15
@@ -221,9 +223,9 @@ for i in range(1, 2**10):
         if converted > actual or abs(converted - actual) >= allowed_err:
             print "FAIL"
             print i,j
-
 """
-for i in range(1, 2**10):
+
+for i in range(1, 2**5):
     allowed_err = 1
     out = program3(int_to_bit(i))
     converted = bit_to_int(out)
@@ -231,7 +233,7 @@ for i in range(1, 2**10):
     if abs(converted - actual) > allowed_err:
         print "FAIL"
         print i
-"""
+        print converted, actual
 
 # function tests
 """

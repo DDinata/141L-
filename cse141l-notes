@@ -5,19 +5,28 @@ mov/get use alu nop and just add mux
 figure out precision bit
 
 
-ADD     0000 - |REG(4)|C(1)| - REG = REG + ACC
-SUB     0001 - |REG(4)|C(1)| - REG = REG - ACC
+ADD   00000
+ADDC  00001
+SUB   00010
+SUBC  00011
 
-SHL     0010 - |REG(4)|C(1)|
-SHR     0011 - |REG(4)|C(1)|
+SHL   00100
+SHLC  00101
+SHR   00110
+SHR   00111
 
-LD      0100 - |REG(4)|
-ST      0101 - |REG(4)|
+INC   01000
+DEC   01001
 
-MOV     1100 - |REG(4)|
-GET     1101 - |REG(4)|
-MSB     1110 - |REG(4)|
-ACC     1111 - |IMM(5)|
+MOV   11000
+GET   11001
+
+LD    11000
+ST    11001
+MSB   11100
+LSB   11101
+ACC   11110
+BCC   11111
 
 CCC  - do particular stuff
 0 - clear carry out
@@ -27,12 +36,15 @@ CCC  - do particular stuff
 4 - cp precision to carry in
 8 - compute $r_a % 8
 
-INC
-DEC = INC, $r, 1
-
 SET - set bit according to value in $r_a
 
-BEZ     1010 - |REG(4)|N(1)|
+BT
+BEZ
+BNZ
+BEQ
+BNE
+BGT
+BLT
 
 Special 
 

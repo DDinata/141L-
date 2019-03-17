@@ -222,3 +222,56 @@ add $r_6 // add carry in bit to final result
 acc 11
 st $r6
 halt
+
+// MAKE SURE TO CLEAR ALL REGISTERS
+
+// program 3 - input addr 16-17, output addr 18
+// TODO: CORNER CHECKS
+
+// $r5|$r4 - x_curr
+// $r3|$r2 - x_0
+// $r1|$r0 - x_curr
+
+bcc 0
+ld $r5 // x[15:8]
+bcc 1
+ld $r4 // x[7:0]
+bcc 0
+ld $r3 // x[15:8]
+bcc 1
+ld $r2 // x[7:0]
+bcc 0
+ld $r1 // x[15:8]
+bcc 1
+ld $r0 // x[7:0]
+
+SQRT_LOOP:
+
+map mem ($r3 thru $r0)
+call division with $r3|$r2 and $r1 -> put msb16 in $r7|$r6
+map $r6 and map $r7
+remap mem ($r3 thru $r0)
+call division with $r3|$r2 and $r0 -> put msb16 in $r5|$r4
+remap mem ($r7, $r6, $r3 thru $r0)
+
+// want to add $r7|$r6 + $r5|$r4 -> $r5|$r4
+get $r6
+add $r4
+ccc 2
+get $r7
+addc $r5
+// transfer $r5|$r4 -> $r1|$r0
+get $r5
+mov $r1
+get $r4
+mov $r0
+// right shift with carry $r1|$r0
+rshift $r1
+ccc 2
+rshift $r0
+
+dec $r9
+bnz SQRT_LOOP
+
+bcc 2
+st $r0
