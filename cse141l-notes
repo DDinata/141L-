@@ -1,3 +1,61 @@
+ADD     0000 - |REG(4)|C(1)| - REG = REG + ACC
+SUB     0001 - |REG(4)|C(1)| - REG = REG - ACC
+
+SHL     0010 - |REG(4)|C(1)|
+SHR     0011 - |REG(4)|C(1)|
+
+LD      0100 - |REG(4)|
+ST      0101 - |REG(4)|
+
+MOV     1100 - |REG(4)|D(1)|
+ClR     1101 - |REG(4)|
+MSB     1110 - |REG(4)|
+ACC     1111 - |IMM(5)|
+
+CCC  - do particular stuff
+0 - clear carry out
+1 - clear carry in
+2 - transfer carry out to carry in
+
+INC
+DEC
+
+BEZ     1010 - |REG(4)|N(1)|
+
+Special 
+
+0 - ignore carry in
+1 - use carry in
+
+0 - shift left
+1 - shift right
+
+0 - Acc to Reg
+1 - Reg to Acc
+
+0 - branch equal 0
+1 - branch not equal 0
+
+true ? a : b = a
+
+Special registers:
+R_15, accumulator
+R_14, branch comparison register
+R_13, branch target register
+R_12, carry out register
+R_11, carry in register
+R_10, zero register
+
+reg_file, dat_mem, instr_rom done
+alu, decoder decent
+
+TODO:
+WRITE PROGRAMS IN ASSEMBLY
+PC AND BRANCHING
+ASSEMBLER
+
+
+
 specs:
 9-bit instructions
 256 bytes of memory (8-bit addressable), byte-wide
@@ -26,41 +84,3 @@ input: 16-bit unsigned integer (address 16-17)
 input format is: |2^15|..|2^0|
 output: 8-bit result (address 18)
 ouput format is: |2^7|..|2^0|
-
-LD      0000 - |REG_DEST(4)|
-ST      0001 - |MEM_DEST(4)|
-
-ADD     0010 - |REG(4)|C(1)| - REG = REG + ACC
-SUB     0011 - |REG(4)|C(1)| - REG = REG - ACC
-
-SHL     0100 - |REG(4)|C(1)| - whether or not we use carry in
-SHR     0101 - |REG(3)|C(1)|
-
-MOV     1100 - |REG(4)|D(1)|
-ClR     1101 - |REG(4)|
-MSB     1110 - |REG(4)|
-ACC     1111 - |IMM(5)|
-
-CCC
-INC
-
-BR      1010 - |REG(4)|TYPE(1)|
-
-0 - shift left
-1 - shift right
-
-0 - Acc to Reg
-1 - Reg to Acc
-
-true ? a : b = a
-
-Special registers:
-R_15, accumulator
-R_14, branch comparison register
-R_13, branch target register
-R_12, carry out register
-R_11, carry in register
-R_10, zero register
-
-reg_file, dat_mem, instr_rom, pretty much done
-need to customize alu, pc, instruction decoder
