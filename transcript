@@ -1,0 +1,59 @@
+# couldn't load file "/home/eric/intelFPGA_lite/17.1/modelsim_ase/linux/ScintillaTk/libScintillaTk0.36.so": libstdc++.so.6: cannot open shared object file: No such file or directory
+vlog -reportprogress 300 -work work /home/eric/Desktop/working_dir/p1_outputs.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 16:34:07 on Mar 16,2019
+# vlog -reportprogress 300 -work work /home/eric/Desktop/working_dir/p1_outputs.sv 
+# ** Error: (vlog-66) Execution of vlib failed. Please check the error log for more details.
+# sh: 1: /home/eric/intelFPGA_lite/17.1/modelsim_ase/linuxpe/vlib: not found
+# End time: 16:34:07 on Mar 16,2019, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+vlib work
+vlog -reportprogress 300 -work work /home/eric/Desktop/working_dir/p1_outputs.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 16:34:10 on Mar 16,2019
+# vlog -reportprogress 300 -work work /home/eric/Desktop/working_dir/p1_outputs.sv 
+# -- Compiling module p1_outputs
+# 
+# Top level modules:
+# 	p1_outputs
+# End time: 16:34:10 on Mar 16,2019, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+vsim work.p1_outputs
+# vsim work.p1_outputs 
+# Start time: 16:34:27 on Mar 16,2019
+# Loading sv_std.std
+# Loading work.p1_outputs
+run -continue
+run -all
+# dividend = 8000000000000000, divisor = 0001, quotient = 8000000000000000, result = 8000, equiv to    1.00000
+# dividend = 8000000000000000, divisor = 0003, quotient = 2aaaaaaaaaaaaaaa, result = 2aab, equiv to    0.33333
+# dividend = 8000000000000000, divisor = 0004, quotient = 2000000000000000, result = 2000, equiv to    0.25000
+# dividend = 8000000000000000, divisor = 0005, quotient = 1999999999999999, result = 199a, equiv to    0.20000
+# dividend = 8000000000000000, divisor = 3333, quotient = 0002800280028002, result = 0003, equiv to    0.00008
+# dividend = 8000000000000000, divisor = 4000, quotient = 0002000000000000, result = 0002, equiv to    0.00006
+# dividend = 8000000000000000, divisor = 8000, quotient = 0001000000000000, result = 0001, equiv to    0.00003
+# ** Note: $stop    : /home/eric/Desktop/working_dir/p1_outputs.sv(30)
+#    Time: 78 ps  Iteration: 0  Instance: /p1_outputs
+# Break in Module p1_outputs at /home/eric/Desktop/working_dir/p1_outputs.sv line 30
+# couldn't load file "/home/eric/intelFPGA_lite/17.1/modelsim_ase/linux/ScintillaTk/libScintillaTk0.36.so": libstdc++.so.6: cannot open shared object file: No such file or directory
+# list element in quotes followed by ":" instead of space
+run -all
+restart
+run -all
+# dividend = 8000000000000000, divisor = 0001, quotient = 8000000000000000, result = 8000, equiv to    1.00000
+# dividend = 8000000000000000, divisor = 0003, quotient = 2aaaaaaaaaaaaaaa, result = 2aab, equiv to    0.33333
+# dividend = 8000000000000000, divisor = 0004, quotient = 2000000000000000, result = 2000, equiv to    0.25000
+# dividend = 8000000000000000, divisor = 0005, quotient = 1999999999999999, result = 199a, equiv to    0.20000
+# dividend = 8000000000000000, divisor = 3333, quotient = 0002800280028002, result = 0003, equiv to    0.00008
+# dividend = 8000000000000000, divisor = 4000, quotient = 0002000000000000, result = 0002, equiv to    0.00006
+# dividend = 8000000000000000, divisor = 8000, quotient = 0001000000000000, result = 0001, equiv to    0.00003
+# ** Note: $stop    : /home/eric/Desktop/working_dir/p1_outputs.sv(30)
+#    Time: 78 ps  Iteration: 0  Instance: /p1_outputs
+# Break in Module p1_outputs at /home/eric/Desktop/working_dir/p1_outputs.sv line 30
+# couldn't load file "/home/eric/intelFPGA_lite/17.1/modelsim_ase/linux/ScintillaTk/libScintillaTk0.36.so": libstdc++.so.6: cannot open shared object file: No such file or directory
+# list element in quotes followed by ":" instead of space
+# Break key hit
+# Break key hit
+# Break key hit
+# End time: 16:37:33 on Mar 16,2019, Elapsed time: 0:03:06
+# Errors: 4, Warnings: 0
