@@ -94,6 +94,9 @@ def sub(a,b):
 def program1(div):
     out = [0] * 16
 
+    if bit_to_int(div) == 0:
+        return out
+
     # divisor > 2^15 -> return 0
     if bit_to_int(div) > 2**15:
         return out
@@ -103,16 +106,19 @@ def program1(div):
 
     num = int_to_bit(2**15)
 
-    if bit_to_int(div[:8]) > 0:
+    # if left side is greater than 0
+    if bit_to_int(div) >= 2**8:
         m = msb(div[:8])
         left_shift = m
-        start = 15 - m
+
+    # if left side is all 0
     else:
         m = msb(div[8:])
         left_shift = m + 8
-        start = 7 - m
 
-    for i in range(left_shift):
+    start = 15 - left_shift;
+
+    for _ in range(left_shift):
       div = shift(div, 0, int_to_bit(1))
 
     for i in range(start, 16):
@@ -131,11 +137,11 @@ def program2(num, div):
     out = [0]*24
 
     m = msb(div[-8:])
-    start = 7 - m
     left_shift = 16 + m
+    start = 23 - left_shift
 
-    shift_reg = int_to_bit(left_shift)
-    div = shift(div, 0, shift_reg)
+    for _ in range(left_shift):
+      div = shift(div, 0, int_to_bit(1))
 
     for i in range(start, 24):
 
@@ -206,7 +212,6 @@ for i in range(1, 2**16):
         print "FAIL"
         print i
 
-"""
 for i in range(1, 2**10):
     for j in range(1, 2**4):
         allowed_err = 2**-7
@@ -216,7 +221,6 @@ for i in range(1, 2**10):
         if converted > actual or abs(converted - actual) >= allowed_err:
             print "FAIL"
             print i,j
-"""
 
 """
 for i in range(1, 2**10):

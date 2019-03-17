@@ -1,0 +1,224 @@
+//program 1 - input addr 8-9, output addr 10-11
+// TODO: CORNER CHECKS (0, 1, MSB is 15)
+
+// $r1|$r0 - div
+// $r3|$r2 - num
+// $r6 - result setter
+// $r7 - index
+// $r8 - left shift amount
+
+acc 8
+ld $r1 // div[15:8]
+acc 9
+ld $r0 // div[7:0]
+
+acc 128
+mov $r3 // num[15:8] = 10000000
+acc 0
+mov $r2 // num[7:0] = 00000000
+
+// Generate "index" index and left shift amount
+// $r7 = index
+// $r8 = lsa
+// we want index = lsa = 15 - overall msb
+
+bez $r0, LEFTNZ
+// if div[15:8] > 0
+acc 15
+mov $r7 // index = 15
+mov $r8 // lsa = 15
+msb $r0
+sub $r7 // index = 15-m
+sub $r8 // lsa = 15-m
+jmp LEFT_SHIFT_PREP
+
+LEFTNZ:
+// if div[15:8] == 0
+acc 7
+mov $r7 // index = 7
+mov $r8 // lsa = 7
+msb $r0
+sub $r7 // index = 7-m
+sub $r8 // lsa = 7-m
+
+
+// left shifts $r1|$r0 until msb of $r1 is 1
+// dec left shift amount each iter
+LEFT_SHIFT_PREP:
+bez $r8, MAIN_LOOP // dont loop if lsa = 0
+LEFT_SHIFT:
+// 2-byte carry out left shift
+shl $r0
+ccc 2
+shl $r1, 1
+dec $r8
+bnz $r8, LEFT_SHIFT
+
+
+MAIN_LOOP:
+
+// if num < div, skip over SET_BIT and go to WRITE_CHECK
+branch $r1 > $r3, WRITE_CHECK
+branch $r1 < $r3, SUB_SET_BIT
+branch $r0 > $r2, WRITE_CHECK
+
+SUB_SET_BIT: // num >= div, so sub and set bit
+// 2-byte borrowed subtraction
+get $r0
+sub $r2, 0
+ccc 2
+get $r1
+sub $r3, 1
+// set bit with mod of index
+get $r7  // $r_a = index
+mod      // $r_a = $r_a % 8
+or $r6,  // $r6 = $r6 | index % 8
+
+// if index == 8, then write the left half of output
+WRITE_CHECK:
+acc 8
+mov $r_bc
+get $r7
+// if index != 8, go to LOOP_CHECK
+bne, LOOP_CHECK
+// index == 8, so write $r6 to mem and clear
+acc 10
+st $r6
+acc 0
+mov $r6
+
+LOOP_CHECK:
+// 2-byte carry out right shift
+shr $r1
+ccc 2
+shr $r0, 1
+dec $r7             // decrement index until 0
+bez $r7 DONE        // done after index hits 0
+bez $r10, MAIN_LOOP // otherwise, jmp to MAIN_LOOP for another iter
+
+
+DONE:
+// precision might just be add last carry in?
+ccc 4
+acc 0
+add $r_6 // add carry in bit to final result
+// disgusting corner case of carry out = 0 -> get mem 10 and inc and restore
+
+// store $r6 to mem 11
+acc 11
+st $r6
+halt
+
+// MAKE SURE TO CLEAR ALL REGISTERS
+
+// program 2 - input addr 0-1, 2, output addr 4-6
+// TODO: CORNER CHECKS
+
+// $r2|r1|$r0 - div
+// $r5|$r4|$r3 - num
+// $r6 - result setter
+// $r7 - index
+// $r8 - left shift amount
+
+acc 0
+ld $r5  // num[23:16]
+acc 1
+ld $r4  // num[15:8]
+acc 0
+mov $r3 // num[7:0] = 00000000
+
+acc 0
+mov $r3 // div[23:16] = 00000000
+acc 0
+mov $r2 // div[15:8] = 00000000
+acc 2
+ld $r0  // div[7:0]
+
+acc 23
+mov $r7 // index = 23
+mov $r8 // lsa = 23
+msb $r0
+sub $r7 // index = 23 - msb
+sub $r8 // lsa = 23 - msb
+
+
+// left shifts $r2|$r1|$r0 until msb of $r2 is 1
+// dec left shift amount each iter (will always loop >= 16 times)
+LEFT_SHIFT:
+// 3-byte carry out left shift
+shl $r0
+ccc 2
+shl $r1, 1
+ccc 2
+shl $r2, 1
+dec $r8
+bnz $r8, LEFT_SHIFT
+
+
+MAIN_LOOP:
+
+// if num < div, skip over SET_BIT and go to WRITE_CHECK
+branch $r2 > $r5, WRITE_CHECK
+branch $r2 < $r5, SUB_SET_BIT
+branch $r1 > $r4, WRITE_CHECK
+branch $r1 < $r4, SUB_SET_BIT
+branch $r0 > $r3, WRITE_CHECK
+
+SUB_SET_BIT: // num >= div, so sub and set bit
+// 3-byte borrowed subtraction
+get $r0
+sub $r3, 0
+ccc 2
+get $r1
+sub $r4, 1
+ccc 2
+get $r2
+sub $r5, 1
+// set bit with mod of index
+get $r7  // $r_a = index
+mod      // $r_a = $r_a % 8
+or $r6,  // $r6 = $r6 | index % 8
+
+// if index == 8 or index == 16, then write the left parts of output
+WRITE_CHECK:
+acc 8
+mov $r_bc
+get $r7
+be, WRITE_MEM // if index == 8, go to WRITE_MEM
+
+// index != 8, but check if index == 16
+acc 16
+mov $r_bc
+get $r7
+bne, LOOP_CHECK // if index != 16, go to LOOP_CHECK
+
+WRITE_MEM:
+// index == 8 or index == 16, so write $r6 to mem and clear
+acc 10
+st $r6
+acc 0
+mov $r6
+
+LOOP_CHECK:
+// 3-byte carry out right shift
+shr $r2
+ccc 2
+shr $r1, 1
+ccc 2
+shr $r0, 1
+dec $r7             // decrement index until 0
+bez $r7 DONE        // done after index hits 0
+bez $r10, MAIN_LOOP // otherwise, jmp to MAIN_LOOP for another iter
+
+
+DONE:
+// precision might just be add last carry in?
+ccc 4
+acc 0
+add $r_6 // add carry in bit to final result
+// disgusting corner case of carry out = 0 -> get mem 10 and inc and restore
+
+// store $r6 to mem 11
+acc 11
+st $r6
+halt

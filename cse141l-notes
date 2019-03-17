@@ -1,3 +1,10 @@
+TODO:
+carry in and carry out same register
+all special bits in same register
+mov/get use alu nop and just add mux
+figure out precision bit
+
+
 ADD     0000 - |REG(4)|C(1)| - REG = REG + ACC
 SUB     0001 - |REG(4)|C(1)| - REG = REG - ACC
 
@@ -7,18 +14,23 @@ SHR     0011 - |REG(4)|C(1)|
 LD      0100 - |REG(4)|
 ST      0101 - |REG(4)|
 
-MOV     1100 - |REG(4)|D(1)|
-ClR     1101 - |REG(4)|
+MOV     1100 - |REG(4)|
+GET     1101 - |REG(4)|
 MSB     1110 - |REG(4)|
 ACC     1111 - |IMM(5)|
 
 CCC  - do particular stuff
 0 - clear carry out
 1 - clear carry in
-2 - transfer carry out to carry in
+2 - cp carry out to carry in
+3 - cp carry out to precision bit
+4 - cp precision to carry in
+8 - compute $r_a % 8
 
 INC
-DEC
+DEC = INC, $r, 1
+
+SET - set bit according to value in $r_a
 
 BEZ     1010 - |REG(4)|N(1)|
 
@@ -42,9 +54,9 @@ Special registers:
 R_15, accumulator
 R_14, branch comparison register
 R_13, branch target register
-R_12, carry out register
-R_11, carry in register
+R_11, special bit register: 0 - carry out, 1 - carry in, 2 - precision bit
 R_10, zero register
+R_9, set register
 
 reg_file, dat_mem, instr_rom done
 alu, decoder decent
