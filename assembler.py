@@ -1,4 +1,4 @@
-assembly_file= "p1_assembly"
+assembly_file= "david_test"
 machine_code_file = "machine_code"
 
 instructions = {
@@ -81,9 +81,19 @@ def int_to_bin(num):
             s += "0"
     return s
 
-code_lines = []
-labels = dict()
+def translate(instr, operand):
+    instr = instr.upper()
+    if instr in imms:
+        operand = int_to_bin(int(operand))
+    else:
+        operand = regs[operand]
+    translation = instructions[instr] + operand
+    return translation
+
+cleaned = []
 counter = 0
+
+# preprocessor - cleanup and convert to labels, targs, and machine code
 with open(assembly_file) as f:
     for line in f:
         counter += 1
@@ -94,20 +104,148 @@ with open(assembly_file) as f:
         if len(arr) < 1: continue
         instr = arr[0].upper()
         if instr not in instructions and instr[-1] != ":": continue
+
         if instr[-1] == ":":
-            labels[instr] = counter
-            continue
-        if instr == "TARG":
-            code_lines.append("TARG " + instr[1])
-            continue
-        operand = arr[1]
-        if instr in imms:
-            operand = int_to_bin(int(operand))
+            cleaned.append("LABEL " + instr[:-1])
+        elif instr == "TARG":
+            cleaned.append("TARG " + arr[1])
         else:
-            operand = regs[operand]
-        code = instructions[instr] + operand
-        code_lines.append(code)
+            cleaned.append(line)
+            """
+            instr = arr[0]
+            operand = arr[1]
+            translation = translate(instr, operand)
+            cleaned.append(translation)
+            """
+
+targ_expansion = []
+for line in cleaned:
+    arr = line.split(" ")
+    if arr[0] == "TARG":
+        targ_expansion.append(line)
+        targ_expansion.append(line)
+        targ_expansion.append(line)
+        targ_expansion.append(line)
+        targ_expansion.append(line)
+        targ_expansion.append(line)
+    else:
+        targ_expansion.append(line)
+
+counter = 0
+label_nums = dict()
+removed_labels = []
+for line in targ_expansion:
+    arr = line.split(" ")
+    if arr[0] == "LABEL":
+        label = arr[1]
+        if label not in label_nums:
+            label_nums[label] = counter
+        else:
+            print "DUPLICATE LABEL ERR"
+            print "Label used twice:", label
+            raise Exception
+    else:
+        removed_labels.append(line)
+        counter += 1
+
+def targ_to_instructions(branch_num, label_num):
+    # need to go from branch_num -> label_num
+    difference = label_num - branch_num
+    if difference == 0:
+        print "weird err"
+        raise Exception
+    direction = 0 if difference < 0 else 1
+    offset = abs(difference)
+    
+    if offset > 93:
+        print "Too large of an offset:", offset
+        raise Exception
+
+    instructions = [0]*6
+
+    if offset <= 15:
+        instructions[0] = "acc %d" % offset
+        instructions[1] = "mov $rbt"
+        instructions[2] = "acc 0"
+        instructions[3] = "acc 0"
+        instructions[4] = "acc 0"
+        instructions[5] = "sbd %d" % direction
+
+    elif offset <= 31:
+        offset = offset - 16
+        instructions[0] = "bcc %d" % offset
+        instructions[1] = "mov $rbt"
+        instructions[2] = "acc 0"
+        instructions[3] = "acc 0"
+        instructions[4] = "acc 0"
+        instructions[5] = "sbd %d" % direction
+
+    elif offset <= 46:
+        instructions[0] = "bcc 15"
+        instructions[1] = "mov $rbt"
+        offset = offset - 31
+        instructions[2] = "acc %d" % offset
+        instructions[3] = "add $rbt"
+        instructions[4] = "acc 0"
+        instructions[5] = "sbd %d" % direction
+
+    elif offset <= 62:
+        instructions[0] = "bcc 15"
+        instructions[1] = "mov $rbt"
+        offset = offset - 47
+        instructions[2] = "bcc %d" % offset
+        instructions[3] = "add $rbt"
+        instructions[4] = "acc 0"
+        instructions[5] = "sbd %d" % direction
+
+    elif offset <= 77:
+        instructions[0] = "bcc 15"
+        instructions[1] = "mov $rbt"
+        instructions[2] = "add $rbt"
+        offset = offset - 62
+        instructions[3] = "acc %d" % offset
+        instructions[4] = "add $rbt"
+        instructions[5] = "sbd %d" % direction
+
+    elif offset <= 93:
+        instructions[0] = "bcc 15"
+        instructions[1] = "mov $rbt"
+        instructions[2] = "add $rbt"
+        offset = offset - 78
+        instructions[3] = "bcc %d" % offset
+        instructions[4] = "add $rbt"
+        instructions[5] = "sbd %d" % direction
+
+    return instructions
+
+
+replaced_targ = removed_labels
+counter = 0
+for line in replaced_targ:
+    arr = line.split(" ")
+    branch_num = counter + 6;
+    if arr[0] == "TARG":
+        label = arr[1]
+        label_num = label_nums[label]
+        replacement = targ_to_instructions(branch_num, label_num)
+        replaced_targ[counter]   = replacement[0]
+        replaced_targ[counter+1] = replacement[1]
+        replaced_targ[counter+2] = replacement[2]
+        replaced_targ[counter+3] = replacement[3]
+        replaced_targ[counter+4] = replacement[4]
+        replaced_targ[counter+5] = replacement[5]
+    counter += 1
+
+translated = []
+for line in replaced_targ:
+    arr = line.split(" ")
+    print arr
+    code = translate(arr[0], arr[1])
+    translated.append(code)
 
 with open(machine_code_file, 'w') as f:
-    for line in code_lines:
+    for line in translated:
         f.write(line + "\n")
+
+for label in label_nums:
+    print label + " - " + removed_labels[label_nums[label]]

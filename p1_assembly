@@ -15,10 +15,10 @@ ld $r0 // div[7:0]
 // acc 128
 // TEMP
 acc 8
-lshift $ra
-lshift $ra
-lshift $ra
-lshift $ra
+shl $ra
+shl $ra
+shl $ra
+shl $ra
 mov $r3 // num[15:8] = 10000000
 acc 0
 mov $r2 // num[7:0] = 00000000
@@ -71,8 +71,7 @@ MAIN_LOOP:
 get $r3             // branch $r1 > $r3 -> WRITE_CHECK
 mov $rbc            // branch $r1 > $r3 -> WRITE_CHECK
 targ WRITE_CHECK    // branch $r1 > $r3 -> WRITE_CHECK
-bgt $r1             // branch $r1 > $r3 -> WRITE_CHECK
-
+bgt $r1             // branch $r1 > $r3 -> WRITE_CHECK 
 targ SUB_SET_BIT    // branch $r1 < $r3 -> SUB_SET_BIT
 blt $r1             // branch $r1 < $r3 -> SUB_SET_BIT
 

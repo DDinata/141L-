@@ -15,10 +15,10 @@ ld $r0 // div[7:0]
 // acc 128
 // TEMP
 acc 8
-lshift $ra
-lshift $ra
-lshift $ra
-lshift $ra
+shl $ra
+shl $ra
+shl $ra
+shl $ra
 mov $r3 // num[15:8] = 10000000
 acc 0
 mov $r2 // num[7:0] = 00000000

@@ -1,9 +1,8 @@
 TODO:
-all special bits in same register
-mov/get use alu nop and just add mux
-add alu instructions
-figure out precision bit
-
+assembler
+get p1 working
+figure out precision bit + rounding
+corner cases
 
 00000  ADD   
 00001  ADDC  
@@ -40,20 +39,17 @@ figure out precision bit
 11111  BCC   
 
 
-CCC  values
+CCC values
 2 - cp carry out to carry in
 3 - cp carry out to precision bit
 4 - cp precision to carry in
 
-
-verilog conditionals -- true ? a : b = a
-
 Special registers:
-R_15, accumulator
-R_14, branch comparison register
-R_13, branch target register
+$ra - R_15, accumulator
+$rbc - R_14, branch comparison register
+$rbt - R_13, branch target register
+$rz - R_10, zero register
 R_11, special bit register: 0 - carry out, 1 - carry in, 2 - precision bit, 3 - branch direction bit
-R_10, zero register
 
 reg_file, dat_mem, instr_rom done
 alu, decoder decent
