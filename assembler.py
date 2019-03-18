@@ -1,6 +1,14 @@
-assembly_file= "david_test"
-machine_code_file = "machine_code"
+import sys
 
+if len(sys.argv) != 2:
+    print "Need file name"
+    raise Exception
+assembly_file = sys.argv[1]
+
+#assembly_file= "david_test"
+
+# only ACC, BCC, SBD take in immediates
+# TARG is only macro
 instructions = {
         "ADD"    :   "00000",
         "ADDC"   :   "00001",
@@ -35,12 +43,7 @@ instructions = {
 
         "TARG"   :   None
 }             
-
 imms = {"ACC", "BCC", "SBD"}
-
-# only ACC, BCC, SBD take in immediates
-# TARG is only macro
-
 regs = {
         "$r0"   :   "0000",
         "$r1"   :   "0001",
@@ -64,6 +67,12 @@ regs = {
         "$rbc"  :   "1110",
         "$ra"   :   "1111"
 }
+
+def write_file(fname, arr):
+  print "Writing to", fname
+  with open(fname, 'w') as f:
+      for line in arr:
+          f.write(line + "\n")
 
 def int_to_bin(num):
     size = 4
@@ -90,62 +99,6 @@ def translate(instr, operand):
     translation = instructions[instr] + operand
     return translation
 
-cleaned = []
-counter = 0
-
-# preprocessor - cleanup and convert to labels, targs, and machine code
-with open(assembly_file) as f:
-    for line in f:
-        counter += 1
-        line = line.strip()
-#print "line num", counter
-        arr = line.split(" ")
-        arr = filter(lambda x: x!="", arr)
-        if len(arr) < 1: continue
-        instr = arr[0].upper()
-        if instr not in instructions and instr[-1] != ":": continue
-
-        if instr[-1] == ":":
-            cleaned.append("LABEL " + instr[:-1])
-        elif instr == "TARG":
-            cleaned.append("TARG " + arr[1])
-        else:
-            cleaned.append(line)
-            """
-            instr = arr[0]
-            operand = arr[1]
-            translation = translate(instr, operand)
-            cleaned.append(translation)
-            """
-
-targ_expansion = []
-for line in cleaned:
-    arr = line.split(" ")
-    if arr[0] == "TARG":
-        targ_expansion.append(line)
-        targ_expansion.append(line)
-        targ_expansion.append(line)
-        targ_expansion.append(line)
-    else:
-        targ_expansion.append(line)
-
-counter = 0
-label_nums = dict()
-removed_labels = []
-for line in targ_expansion:
-    arr = line.split(" ")
-    if arr[0] == "LABEL":
-        label = arr[1]
-        if label not in label_nums:
-            label_nums[label] = counter
-        else:
-            print "DUPLICATE LABEL ERR"
-            print "Label used twice:", label
-            raise Exception
-    else:
-        removed_labels.append(line)
-        counter += 1
-
 def targ_to_instructions(branch_num, label_num):
     # need to go from branch_num -> label_num
     difference = label_num - branch_num
@@ -162,7 +115,7 @@ def targ_to_instructions(branch_num, label_num):
     instructions = [0]*4
 
     acc_offset = offset % 16
-    bcc_offset = offset - acc_offset
+    bcc_offset = offset / 16
 
     instructions[0] = "acc %d" % acc_offset
     instructions[1] = "bcc %d" % bcc_offset
@@ -172,7 +125,69 @@ def targ_to_instructions(branch_num, label_num):
     return instructions
 
 
-replaced_targ = removed_labels
+
+# preprocessor - cleanup and convert to labels, targs, and machine code
+cleaned = []
+with open(assembly_file) as f:
+    for line in f:
+        line = line.strip()
+        arr = line.split(" ")
+        arr = filter(lambda x: x!="", arr)[:2]
+        if len(arr) == 0: continue
+        instr = arr[0].upper()
+        if instr not in instructions and instr[-1] != ":": continue
+
+        if instr[-1] == ":":
+            cleaned.append("LABEL " + instr[:-1])
+        elif instr == "TARG":
+            cleaned.append("TARG " + arr[1])
+        else:
+            if len(arr) == 2:
+                cleaned.append(line)
+            else:
+                cleaned.append(arr[0] + " $r0")  # will get converted to 0000
+
+write_file(assembly_file+"-cleaned", cleaned)
+
+# targ line expansion
+targ_expansion = []
+for line in cleaned:
+    arr = line.split(" ")
+    if arr[0] == "TARG":
+        targ_expansion.append(line)
+        targ_expansion.append(line)
+        targ_expansion.append(line)
+        targ_expansion.append(line)
+    else:
+        targ_expansion.append(line)
+
+write_file(assembly_file+"-expanded", targ_expansion)
+
+# line recording
+label_nums = dict()
+unlabeled = []
+for line in targ_expansion:
+    arr = line.split(" ")
+    if arr[0] == "LABEL":
+        label = arr[1]
+        if label not in label_nums:
+            label_nums[label] = len(unlabeled)
+        else:
+            print "DUPLICATE LABEL ERR"
+            print "Label used twice:", label
+            raise Exception
+    else:
+        unlabeled.append(line)
+
+write_file(assembly_file+"-unlabeled", unlabeled)
+
+print "Label line numbers"
+for label in label_nums:
+    print label + "(" + str(label_nums[label]) + ") - " + unlabeled[label_nums[label]]
+
+
+# targ replacement with instructions
+replaced_targ = unlabeled
 counter = 0
 for line in replaced_targ:
     arr = line.split(" ")
@@ -187,15 +202,14 @@ for line in replaced_targ:
         replaced_targ[counter+3] = replacement[3]
     counter += 1
 
+write_file(assembly_file+"-full", replaced_targ)
+
+# translate to machine code
 translated = []
 for line in replaced_targ:
     arr = line.split(" ")
     code = translate(arr[0], arr[1])
     translated.append(code)
 
-with open(machine_code_file, 'w') as f:
-    for line in translated:
-        f.write(line + "\n")
-
-for label in label_nums:
-    print label + " - " + removed_labels[label_nums[label]]
+write_file(assembly_file+"-machine_code", translated)
+write_file("machine_code", translated)
