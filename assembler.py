@@ -36,9 +36,9 @@ instructions = {
         "TARG"   :   None
 }             
 
-imms = {"ACC", "BCC", "CCC", "SBD"}
+imms = {"ACC", "BCC", "SBD"}
 
-# only ACC, BCC, CCC, SBD take in immediates
+# only ACC, BCC, SBD take in immediates
 # TARG is only macro
 
 regs = {
@@ -98,7 +98,7 @@ with open(assembly_file) as f:
     for line in f:
         counter += 1
         line = line.strip()
-        print "line num", counter
+#print "line num", counter
         arr = line.split(" ")
         arr = filter(lambda x: x!="", arr)
         if len(arr) < 1: continue
@@ -122,8 +122,6 @@ targ_expansion = []
 for line in cleaned:
     arr = line.split(" ")
     if arr[0] == "TARG":
-        targ_expansion.append(line)
-        targ_expansion.append(line)
         targ_expansion.append(line)
         targ_expansion.append(line)
         targ_expansion.append(line)
@@ -157,64 +155,19 @@ def targ_to_instructions(branch_num, label_num):
     direction = 0 if difference < 0 else 1
     offset = abs(difference)
     
-    if offset > 93:
+    if offset > 255:
         print "Too large of an offset:", offset
         raise Exception
 
-    instructions = [0]*6
+    instructions = [0]*4
 
-    if offset <= 15:
-        instructions[0] = "acc %d" % offset
-        instructions[1] = "mov $rbt"
-        instructions[2] = "acc 0"
-        instructions[3] = "acc 0"
-        instructions[4] = "acc 0"
-        instructions[5] = "sbd %d" % direction
+    acc_offset = offset % 16
+    bcc_offset = offset - acc_offset
 
-    elif offset <= 31:
-        offset = offset - 16
-        instructions[0] = "bcc %d" % offset
-        instructions[1] = "mov $rbt"
-        instructions[2] = "acc 0"
-        instructions[3] = "acc 0"
-        instructions[4] = "acc 0"
-        instructions[5] = "sbd %d" % direction
-
-    elif offset <= 46:
-        instructions[0] = "bcc 15"
-        instructions[1] = "mov $rbt"
-        offset = offset - 31
-        instructions[2] = "acc %d" % offset
-        instructions[3] = "add $rbt"
-        instructions[4] = "acc 0"
-        instructions[5] = "sbd %d" % direction
-
-    elif offset <= 62:
-        instructions[0] = "bcc 15"
-        instructions[1] = "mov $rbt"
-        offset = offset - 47
-        instructions[2] = "bcc %d" % offset
-        instructions[3] = "add $rbt"
-        instructions[4] = "acc 0"
-        instructions[5] = "sbd %d" % direction
-
-    elif offset <= 77:
-        instructions[0] = "bcc 15"
-        instructions[1] = "mov $rbt"
-        instructions[2] = "add $rbt"
-        offset = offset - 62
-        instructions[3] = "acc %d" % offset
-        instructions[4] = "add $rbt"
-        instructions[5] = "sbd %d" % direction
-
-    elif offset <= 93:
-        instructions[0] = "bcc 15"
-        instructions[1] = "mov $rbt"
-        instructions[2] = "add $rbt"
-        offset = offset - 78
-        instructions[3] = "bcc %d" % offset
-        instructions[4] = "add $rbt"
-        instructions[5] = "sbd %d" % direction
+    instructions[0] = "acc %d" % acc_offset
+    instructions[1] = "bcc %d" % bcc_offset
+    instructions[2] = "mov $rbt"
+    instructions[3] = "sbd %d" % direction
 
     return instructions
 
@@ -223,7 +176,7 @@ replaced_targ = removed_labels
 counter = 0
 for line in replaced_targ:
     arr = line.split(" ")
-    branch_num = counter + 6;
+    branch_num = counter + 4;
     if arr[0] == "TARG":
         label = arr[1]
         label_num = label_nums[label]
@@ -232,14 +185,11 @@ for line in replaced_targ:
         replaced_targ[counter+1] = replacement[1]
         replaced_targ[counter+2] = replacement[2]
         replaced_targ[counter+3] = replacement[3]
-        replaced_targ[counter+4] = replacement[4]
-        replaced_targ[counter+5] = replacement[5]
     counter += 1
 
 translated = []
 for line in replaced_targ:
     arr = line.split(" ")
-    print arr
     code = translate(arr[0], arr[1])
     translated.append(code)
 

@@ -4,15 +4,3 @@ acc 15
 st $r0
 ld $r1
 shl $r1
-
-acc 5
-mov $rbc
-acc 0
-mov $r2
-
-LOOP:
-acc 3
-add $r1
-
-targ LOOP
-blt $r2

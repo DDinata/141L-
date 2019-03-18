@@ -58,7 +58,7 @@ bez $r8 // dont loop if lsa = 0
 LEFT_SHIFT:
 // 2-byte carry out left shift
 shl $r0
-ccc 2
+ccc
 shlc $r1
 dec $r8
 targ LEFT_SHIFT
@@ -85,7 +85,7 @@ SUB_SET_BIT: // num >= div, so sub and set bit
 // 2-byte borrowed subtraction
 get $r0
 sub $r2
-ccc 2
+ccc
 get $r1
 subc $r3
 // set bit with mod of index
@@ -107,7 +107,7 @@ mov $r6
 LOOP_CHECK:
 // 2-byte carry out right shift
 shr $r1
-ccc 2
+ccc
 shrc $r0
 dec $r7          // decrement index until 0
 targ DONE
@@ -118,9 +118,6 @@ bez $rz         // otherwise, jmp to MAIN_LOOP for another iter
 
 DONE:
 // TODO: PRECISION
-ccc 4
-acc 0
-add $r6 // add carry in bit to final result
 // disgusting corner case of carry out = 0 -> get mem 10 and inc and restore
 
 // store $r6 to mem 11
@@ -153,7 +150,9 @@ mov $r2 // div[15:8] = 00000000
 acc 2
 ld $r0  // div[7:0]
 
-bcc 7 // acc 23
+// set $ra to 23
+acc 7
+bcc 1
 mov $r7 // index = 23
 mov $r8 // lsa = 23
 mmm $r0
@@ -166,9 +165,9 @@ sub $r8 // lsa = 23 - mmm
 LEFT_SHIFT:
 // 3-byte carry out left shift
 shl $r0
-ccc 2
+ccc
 shlc $r1
-ccc 2
+ccc
 shlc $r2
 dec $r8
 targ LEFT_SHIFT
@@ -204,10 +203,10 @@ SUB_SET_BIT: // num >= div, so sub and set bit
 // 3-byte borrowed subtraction
 get $r0
 sub $r3
-ccc 2
+ccc
 get $r1
 subc $r4
-ccc 2
+ccc
 get $r2
 subc $r5
 // set bit with mod of index
@@ -237,9 +236,9 @@ mov $r6
 LOOP_CHECK:
 // 3-byte carry out right shift
 shr $r2
-ccc 2
+ccc
 shrc $r1
-ccc 2
+ccc
 shrc $r0
 dec $r7         // decrement index until 0
 targ DONE
@@ -250,9 +249,6 @@ bez $rz        // otherwise, jmp to MAIN_LOOP for another iter
 
 DONE:
 // TODO: PRECISION
-ccc 4
-acc 0
-add $r6 // add carry in bit to final result
 // disgusting corner case of carry out = 0 -> get mem 10 and inc and restore
 
 // store $r6 to mem 11
@@ -262,24 +258,24 @@ halt
 
 // MAKE SURE TO CLEAR ALL REGISTERS
 
-// program 3 - input addr 16-17, output addr 18
+// program 3 - input addr 12-13, output addr 14
 // TODO: CORNER CHECKS
 
 // $r5|$r4 - x_curr
 // $r3|$r2 - x_0
 // $r1|$r0 - x_curr
 
-bcc 0
+acc 12
 ld $r5 // x[15:8]
-bcc 1
+acc 13
 ld $r4 // x[7:0]
-bcc 0
+acc 12
 ld $r3 // x[15:8]
-bcc 1
+acc 13
 ld $r2 // x[7:0]
-bcc 0
+acc 12
 ld $r1 // x[15:8]
-bcc 1
+acc 13
 ld $r0 // x[7:0]
 
 SQRT_LOOP:
@@ -294,7 +290,7 @@ remap mem ($r7, $r6, $r3 thru $r0)
 // want to add $r7|$r6 + $r5|$r4 -> $r5|$r4
 get $r6
 add $r4
-ccc 2
+ccc
 get $r7
 addc $r5
 // transfer $r5|$r4 -> $r1|$r0
@@ -304,13 +300,13 @@ get $r4
 mov $r0
 // right shift with carry $r1|$r0
 rshift $r1
-ccc 2
+ccc
 rshift $r0
 
 dec $r9
 targ SQRT_LOOP
 bnz $r9
 
-bcc 2
+acc 14
 st $r0
 halt

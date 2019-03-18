@@ -17,7 +17,7 @@ corner cases
 01010  MMM
 01011  LLL
 
-01100  CCC
+01100  CCC - carry out to carry in
 01101  SET - set bit according to $ra[2:0]
 01110
 01111  
@@ -35,14 +35,9 @@ corner cases
 11001  ST    
 11100  MOV   
 11101  GET   
-11110  ACC   
-11111  BCC   
+11110  ACC - set low bits for acc
+11111  BCC - set high bits for acc
 
-
-CCC values
-2 - cp carry out to carry in
-3 - cp carry out to precision bit
-4 - cp precision to carry in
 
 Special registers:
 $ra - R_15, accumulator
@@ -85,7 +80,7 @@ output: 16-bit unsigned integer quotient + 8-bit unsigned quotient fraction (add
 output format is: |2^15|..|2^-8|
 
 p3 - square root
-input: 16-bit unsigned integer (address 16-17)
+input: 16-bit unsigned integer (address 12-13)
 input format is: |2^15|..|2^0|
-output: 8-bit result (address 18)
+output: 8-bit result (address 14)
 ouput format is: |2^7|..|2^0|
