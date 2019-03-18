@@ -19,9 +19,9 @@ figure out precision bit
 01011  LSB   
 
 01100  CCC
-01101
+01101  SET - set bit according to $ra[2:0]
 01110
-01111  TARG
+01111  
 
 10000  BEZ - reg == 0
 10001  BNZ - reg != 0
@@ -29,7 +29,7 @@ figure out precision bit
 10011  BNE - reg != bc
 10100  BGT - reg > bc
 10101  BLT - reg < bc
-10110  
+10110  SBD - set branch direction bit - 0 negative 1 positive
 10111  
 
 11000  LD    
@@ -39,15 +39,11 @@ figure out precision bit
 11110  ACC   
 11111  BCC   
 
-SET - set bit according to value in $r_a
 
 CCC  values
-0 - clear carry out
-1 - clear carry in
 2 - cp carry out to carry in
 3 - cp carry out to precision bit
 4 - cp precision to carry in
-8 - compute $r_a % 8
 
 
 
@@ -71,7 +67,7 @@ Special registers:
 R_15, accumulator
 R_14, branch comparison register
 R_13, branch target register
-R_11, special bit register: 0 - carry out, 1 - carry in, 2 - precision bit
+R_11, special bit register: 0 - carry out, 1 - carry in, 2 - precision bit, 3 - branch direction bit
 R_10, zero register
 R_9, set register
 
