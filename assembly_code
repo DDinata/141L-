@@ -62,12 +62,18 @@ bnz $r8
 MAIN_LOOP:
 
 // if num < div, skip over SET_BIT and go to WRITE_CHECK
-targ WRITE_CHECK
-branch $r1 > $r3
-targ SUB_SET_BIT
-branch $r1 < $r3
-targ WRITE_CHECK
-branch $r0 > $r2
+get $r3             // branch $r1 > $r3 -> WRITE_CHECK
+mov $rbc            // branch $r1 > $r3 -> WRITE_CHECK
+targ WRITE_CHECK    // branch $r1 > $r3 -> WRITE_CHECK
+bgt $r1             // branch $r1 > $r3 -> WRITE_CHECK
+
+targ SUB_SET_BIT    // branch $r1 < $r3 -> SUB_SET_BIT
+blt $r1             // branch $r1 < $r3 -> SUB_SET_BIT
+
+get $r2             // branch $r0 > $r2 -> WRITE_CHECK
+mov $rbc            // branch $r0 > $r2 -> WRITE_CHECK
+targ WRITE_CHECK    // branch $r0 > $r2 -> WRITE_CHECK
+bgt $r0             // branch $r0 > $r2 -> WRITE_CHECK
 
 SUB_SET_BIT: // num >= div, so sub and set bit
 // 2-byte borrowed subtraction
@@ -77,13 +83,13 @@ ccc 2
 get $r1
 subc $r3
 // set bit with mod of index
-get $r7  // $r_a = index
-set $r6  // $r6[index % 8] = 1
+get $r7
+set $r6
 
 // want index == 8 -> then write the left half of output
 WRITE_CHECK:
 acc 8
-mov $r_bc
+mov $rbc
 targ LOOP_CHECK
 bne $r7 // if index != 8, go to LOOP_CHECK
 // index == 8, so write $r6 to mem and clear
@@ -166,16 +172,27 @@ bnz $r8
 MAIN_LOOP:
 
 // if num < div, skip over SET_BIT and go to WRITE_CHECK
-targ WRITE_CHECK
-branch $r2 > $r5
-targ SUB_SET_BIT
-branch $r2 < $r5
-targ WRITE_CHECK
-branch $r1 > $r4
-targ SUB_SET_BIT
-branch $r1 < $r4
-targ WRITE_CHECK
-branch $r0 > $r3
+
+get $r5             // branch $r2 > $r5 -> WRITE_CHECK
+mov $rbc            // branch $r2 > $r5 -> WRITE_CHECK
+targ WRITE_CHECK    // branch $r2 > $r5 -> WRITE_CHECK
+bgt $r2             // branch $r2 > $r5 -> WRITE_CHECK
+
+targ SUB_SET_BIT    // branch $r2 < $r5 -> SUB_SET_BIT
+blt $r2             // branch $r2 < $r5 -> SUB_SET_BIT
+
+get $r4             // branch $r1 > $r4 -> WRITE_CHECK
+mov $rbc            // branch $r1 > $r4 -> WRITE_CHECK
+targ WRITE_CHECK    // branch $r1 > $r4 -> WRITE_CHECK
+bgt $r1             // branch $r1 > $r4 -> WRITE_CHECK
+
+targ SUB_SET_BIT    // branch $r1 < $r4 -> SUB_SET_BIT
+blt $r1             // branch $r1 < $r4 -> SUB_SET_BIT
+
+get $r3             // branch $r0 > $r3 -> WRITE_CHECK
+mov $rbc            // branch $r0 > $r3 -> WRITE_CHECK
+targ WRITE_CHECK    // branch $r0 > $r3 -> WRITE_CHECK
+bgt $r0             // branch $r0 > $r3 -> WRITE_CHECK
 
 SUB_SET_BIT: // num >= div, so sub and set bit
 // 3-byte borrowed subtraction
@@ -194,13 +211,13 @@ set $r6
 // if index == 8 or index == 16, then write the left parts of output
 WRITE_CHECK:
 acc 8
-mov $r_bc
+mov $rbc
 targ WRITE_MEM
 beq $r7 // if index == 8, go to WRITE_MEM
 
 // index != 8, but check if index == 16
 acc 16
-mov $r_bc
+mov $rbc
 targ LOOP_CHECK
 bne $r7 // if index != 16, go to LOOP_CHECK
 
