@@ -15,8 +15,8 @@ figure out precision bit
 00111  SHRC  
 01000  INC   
 01001  DEC   
-01010  MSB   
-01011  LSB   
+01010  MMM
+01011  LLL
 
 01100  CCC
 01101  SET - set bit according to $ra[2:0]
@@ -46,22 +46,7 @@ CCC  values
 4 - cp precision to carry in
 
 
-
-Special 
-
-0 - ignore carry in
-1 - use carry in
-
-0 - shift left
-1 - shift right
-
-0 - Acc to Reg
-1 - Reg to Acc
-
-0 - branch equal 0
-1 - branch not equal 0
-
-true ? a : b = a
+verilog conditionals -- true ? a : b = a
 
 Special registers:
 R_15, accumulator
@@ -69,7 +54,6 @@ R_14, branch comparison register
 R_13, branch target register
 R_11, special bit register: 0 - carry out, 1 - carry in, 2 - precision bit, 3 - branch direction bit
 R_10, zero register
-R_9, set register
 
 reg_file, dat_mem, instr_rom done
 alu, decoder decent

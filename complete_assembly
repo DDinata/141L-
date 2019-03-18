@@ -12,7 +12,13 @@ ld $r1 // div[15:8]
 acc 9
 ld $r0 // div[7:0]
 
-acc 128
+// acc 128
+// TEMP
+acc 8
+lshift $ra
+lshift $ra
+lshift $ra
+lshift $ra
 mov $r3 // num[15:8] = 10000000
 acc 0
 mov $r2 // num[7:0] = 00000000
@@ -107,14 +113,14 @@ dec $r7          // decrement index until 0
 targ DONE
 bez $r7          // done after index hits 0
 targ MAIN_LOOP
-bez $r10         // otherwise, jmp to MAIN_LOOP for another iter
+bez $rz         // otherwise, jmp to MAIN_LOOP for another iter
 
 
 DONE:
 // TODO: PRECISION
 ccc 4
 acc 0
-add $r_6 // add carry in bit to final result
+add $r6 // add carry in bit to final result
 // disgusting corner case of carry out = 0 -> get mem 10 and inc and restore
 
 // store $r6 to mem 11
@@ -147,7 +153,7 @@ mov $r2 // div[15:8] = 00000000
 acc 2
 ld $r0  // div[7:0]
 
-acc 23
+bcc 7 // acc 23
 mov $r7 // index = 23
 mov $r8 // lsa = 23
 mmm $r0
@@ -239,14 +245,14 @@ dec $r7         // decrement index until 0
 targ DONE
 bez $r7         // done after index hits 0
 targ MAIN_LOOP
-bez $r10        // otherwise, jmp to MAIN_LOOP for another iter
+bez $rz        // otherwise, jmp to MAIN_LOOP for another iter
 
 
 DONE:
 // TODO: PRECISION
 ccc 4
 acc 0
-add $r_6 // add carry in bit to final result
+add $r6 // add carry in bit to final result
 // disgusting corner case of carry out = 0 -> get mem 10 and inc and restore
 
 // store $r6 to mem 11
