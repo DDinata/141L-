@@ -1,34 +1,47 @@
 TODO:
-carry in and carry out same register
 all special bits in same register
 mov/get use alu nop and just add mux
+add alu instructions
 figure out precision bit
 
 
-ADD   00000
-ADDC  00001
-SUB   00010
-SUBC  00011
+00000  ADD   
+00001  ADDC  
+00010  SUB   
+00011  SUBC  
+00100  SHL   
+00101  SHLC  
+00110  SHR   
+00111  SHRC  
+01000  INC   
+01001  DEC   
+01010  MSB   
+01011  LSB   
 
-SHL   00100
-SHLC  00101
-SHR   00110
-SHR   00111
+01100  CCC
+01101
+01110
+01111  TARG
 
-INC   01000
-DEC   01001
+10000  BEZ - reg == 0
+10001  BNZ - reg != 0
+10010  BEQ - reg == bc 
+10011  BNE - reg != bc
+10100  BGT - reg > bc
+10101  BLT - reg < bc
+10110  
+10111  
 
-MOV   11000
-GET   11001
+11000  LD    
+11001  ST    
+11100  MOV   
+11101  GET   
+11110  ACC   
+11111  BCC   
 
-LD    11000
-ST    11001
-MSB   11100
-LSB   11101
-ACC   11110
-BCC   11111
+SET - set bit according to value in $r_a
 
-CCC  - do particular stuff
+CCC  values
 0 - clear carry out
 1 - clear carry in
 2 - cp carry out to carry in
@@ -36,15 +49,7 @@ CCC  - do particular stuff
 4 - cp precision to carry in
 8 - compute $r_a % 8
 
-SET - set bit according to value in $r_a
 
-BT
-BEZ
-BNZ
-BEQ
-BNE
-BGT
-BLT
 
 Special 
 
