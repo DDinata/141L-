@@ -33,8 +33,7 @@ instructions = {
         "BNE"    :   "10011",
         "BGT"    :   "10100",
         "BLT"    :   "10101",
-        "SBD"    :   "10110",
-                                   
+
         "LD"     :   "11000",
         "ST"     :   "11001",
         "MOV"    :   "11100",
@@ -44,7 +43,7 @@ instructions = {
 
         "TARG"   :   None
 }             
-imms = {"ACC", "BCC", "SBD"}
+imms = {"ACC", "BCC"}
 regs = {
         "$r0"   :   "0000",
         "$r1"   :   "0001",
@@ -118,10 +117,11 @@ def targ_to_instructions(branch_num, label_num):
     acc_offset = offset % 16
     bcc_offset = offset / 16
 
-    instructions[0] = "acc %d" % acc_offset
-    instructions[1] = "bcc %d" % bcc_offset
-    instructions[2] = "mov $rbt"
-    instructions[3] = "acc %d" % direction
+    comment_string = " // branch target to %d" % label_num
+    instructions[0] = "acc %d" % acc_offset  + comment_string
+    instructions[1] = "bcc %d" % bcc_offset  + comment_string
+    instructions[2] = "mov $rbt"             + comment_string
+    instructions[3] = "acc %d" % direction   + comment_string
 
     return instructions
 

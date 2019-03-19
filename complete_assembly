@@ -64,6 +64,8 @@ dec $r8
 targ LEFT_SHIFT
 bnz $r8
 
+// $r1|$r0 is left shifted all the way
+// $r7 contains how much we shifted
 
 MAIN_LOOP:
 
