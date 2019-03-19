@@ -1,4 +1,5 @@
 import sys
+import os
 
 if len(sys.argv) != 2:
     print "Need file name"
@@ -20,8 +21,8 @@ instructions = {
         "SHRC"   :   "00111",
         "INC"    :   "01000",
         "DEC"    :   "01001",
-        "MSB"    :   "01010",
-        "LSB"    :   "01011",
+        "MMM"    :   "01010",
+        "LLL"    :   "01011",
                     
         "CCC"    :   "01100",
         "SET"    :   "01101",
@@ -120,7 +121,7 @@ def targ_to_instructions(branch_num, label_num):
     instructions[0] = "acc %d" % acc_offset
     instructions[1] = "bcc %d" % bcc_offset
     instructions[2] = "mov $rbt"
-    instructions[3] = "sbd %d" % direction
+    instructions[3] = "acc %d" % direction
 
     return instructions
 
@@ -194,6 +195,9 @@ for line in replaced_targ:
     branch_num = counter + 4;
     if arr[0] == "TARG":
         label = arr[1]
+        if label not in label_nums:
+            print "Label does not exist:", label
+            raise Exception
         label_num = label_nums[label]
         replacement = targ_to_instructions(branch_num, label_num)
         replaced_targ[counter]   = replacement[0]
@@ -211,5 +215,7 @@ for line in replaced_targ:
     code = translate(arr[0], arr[1])
     translated.append(code)
 
-write_file(assembly_file+"-machine_code", translated)
+write_file(assembly_file+"-machine_code.log", translated)
 write_file("machine_code", translated)
+os.system("cp machine_code ~/Desktop/actual_project")
+print "Copied over"

@@ -22,3 +22,57 @@ shl $ra
 mov $r3 // num[15:8] = 10000000
 acc 0
 mov $r2 // num[7:0] = 00000000
+
+// Generate "index" index and left shift amount
+// $r7 = index
+// $r8 = lsa
+// we want index = lsa = 15 - overall mmm
+
+targ LEFTNZ
+bez $r0
+// if div[15:8] > 0
+acc 15
+mov $r7 // index = 15
+mov $r8 // lsa = 15
+mmm $r0
+sub $r7 // index = 15-m
+sub $r8 // lsa = 15-m
+targ LEFT_SHIFT_PREP
+bez $rz
+
+LEFTNZ:
+// if div[15:8] == 0
+acc 7
+mov $r7 // index = 7
+mov $r8 // lsa = 7
+mmm $r0
+sub $r7 // index = 7-m
+sub $r8 // lsa = 7-m
+
+
+// left shifts $r1|$r0 until mmm of $r1 is 1
+// dec left shift amount each iter
+LEFT_SHIFT_PREP:
+targ MAIN_LOOP
+bez $r8 // dont loop if lsa = 0
+LEFT_SHIFT:
+// 2-byte carry out left shift
+shl $r0
+ccc
+shlc $r1
+dec $r8
+targ LEFT_SHIFT
+bnz $r8
+
+MAIN_LOOP:
+acc 0
+acc 1
+acc 1
+acc 1
+acc 1
+acc 1
+acc 1
+acc 1
+acc 1
+acc 1
+acc 1

@@ -1,0 +1,100 @@
+acc 6
+bcc 13
+mov $r0
+
+acc 0
+st $r0
+
+acc 1
+bcc 4
+mov $r1
+
+acc 1
+st $r1
+
+get $r1
+add $r0
+ccc
+
+acc 2
+st $r0
+
+acc 0
+addc $r3
+
+acc 3
+st $r3
+
+acc 0
+ld $r0
+
+get $r1
+sub $r0
+
+acc 4
+st $r0
+
+acc 0
+mov $r5
+subc $r5
+acc 5
+st $r5
+
+acc 0
+ld $r6
+acc 1
+ld $r7
+
+shr $r6
+ccc
+shrc $r7
+shr $r6
+ccc
+shrc $r7
+shr $r6
+ccc
+shrc $r7
+
+acc 6
+st $r6
+acc 7
+st $r7
+
+mmm $r1
+mov $r8
+acc 8
+st $r8
+
+acc 0
+mov $r9
+acc 3
+set $r9
+acc 2
+set $r9
+acc 1
+set $r9
+acc 0
+set $r9
+acc 9
+st $r9
+
+acc 0
+ld $r0
+acc 1
+ld $r1
+acc 2
+ld $r2
+acc 3
+ld $r3
+acc 4
+ld $r4
+acc 5
+ld $r5
+acc 6
+ld $r6
+acc 7
+ld $r7
+acc 8
+ld $r8
+acc 9
+ld $r9

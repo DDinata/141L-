@@ -1,0 +1,35 @@
+acc 15
+bcc 7
+mov $r0
+
+acc 6
+bcc 3
+mov $r1
+
+acc 8
+bcc 0
+mov $r2
+
+acc 6
+bcc 13
+mov $r3
+
+get $r3
+sub $r1
+ccc
+get $r2
+subc $r0
+
+acc 0
+st $r0
+acc 1
+st $r1
+
+acc 0
+ld $r0
+acc 1
+ld $r1
+acc 2
+ld $r2
+acc 3
+ld $r3

@@ -28,7 +28,7 @@ corner cases
 10011  BNE - reg != bc
 10100  BGT - reg > bc
 10101  BLT - reg < bc
-10110  SBD - set branch direction bit - 0 negative 1 positive
+10110  
 10111  
 
 11000  LD    
@@ -36,7 +36,7 @@ corner cases
 11100  MOV   
 11101  GET   
 11110  ACC - set low bits for acc
-11111  BCC - set high bits for acc
+11111  BCC - add high bits for acc (must always be after acc)
 
 
 Special registers:

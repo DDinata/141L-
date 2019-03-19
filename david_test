@@ -1,7 +1,0 @@
-acc 0
-acc 1
-mov $r0
-acc 15
-st $r0
-ld $r1
-shl $r1
