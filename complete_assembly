@@ -1,16 +1,16 @@
 //program 1 - input addr 8-9, output addr 10-11
 // TODO: CORNER CHECKS (0, 1, mmm is 15)
 
-// $r1|$r0 - div
-// $r3|$r2 - num
+// $r2|$r3 - div
+// $r0|$r1 - num
 // $r6 - result setter
 // $r7 - index
 // $r8 - left shift amount
 
 acc 8
-ld $r1 // div[15:8]
+ld $r2 // div[15:8]
 acc 9
-ld $r0 // div[7:0]
+ld $r3 // div[7:0]
 
 // acc 128
 // TEMP
@@ -19,9 +19,9 @@ shl $ra
 shl $ra
 shl $ra
 shl $ra
-mov $r3 // num[15:8] = 10000000
+mov $r0 // num[15:8] = 10000000
 acc 0
-mov $r2 // num[7:0] = 00000000
+mov $r1 // num[7:0] = 00000000
 
 // Generate "index" index and left shift amount
 // $r7 = index
@@ -29,12 +29,12 @@ mov $r2 // num[7:0] = 00000000
 // we want index = lsa = 15 - overall mmm
 
 targ LEFTNZ
-bez $r0
+bez $r3
 // if div[15:8] > 0
 acc 15
 mov $r7 // index = 15
 mov $r8 // lsa = 15
-mmm $r0
+mmm $r3
 sub $r7 // index = 15-m
 sub $r8 // lsa = 15-m
 targ LEFT_SHIFT_PREP
@@ -45,51 +45,51 @@ LEFTNZ:
 acc 7
 mov $r7 // index = 7
 mov $r8 // lsa = 7
-mmm $r0
+mmm $r3
 sub $r7 // index = 7-m
 sub $r8 // lsa = 7-m
 
 
-// left shifts $r1|$r0 until mmm of $r1 is 1
+// left shifts $r2|$r3 until mmm of $r2 is 1
 // dec left shift amount each iter
 LEFT_SHIFT_PREP:
 targ MAIN_LOOP
 bez $r8 // dont loop if lsa = 0
 LEFT_SHIFT:
 // 2-byte carry out left shift
-shl $r0
+shl $r3
 ccc
-shlc $r1
+shlc $r2
 dec $r8
 targ LEFT_SHIFT
 bnz $r8
 
-// $r1|$r0 is left shifted all the way
+// $r2|$r3 is left shifted all the way
 // $r7 contains how much we shifted
 
 MAIN_LOOP:
 
 // if num < div, skip over SET_BIT and go to WRITE_CHECK
-get $r3             // branch $r1 > $r3 -> WRITE_CHECK
-mov $rbc            // branch $r1 > $r3 -> WRITE_CHECK
-targ WRITE_CHECK    // branch $r1 > $r3 -> WRITE_CHECK
-bgt $r1             // branch $r1 > $r3 -> WRITE_CHECK
+get $r0             // branch $r2 > $rccc -> WRITE_CHECK
+mov $rbc            // branch $r2 > $r0 -> WRITE_CHECK
+targ WRITE_CHECK    // branch $r2 > $r0 -> WRITE_CHECK
+bgt $r2             // branch $r2 > $r0 -> WRITE_CHECK
 
-targ SUB_SET_BIT    // branch $r1 < $r3 -> SUB_SET_BIT
-blt $r1             // branch $r1 < $r3 -> SUB_SET_BIT
+targ SUB_SET_BIT    // branch $r2 < $r0 -> SUB_SET_BIT
+blt $r2             // branch $r2 < $r0 -> SUB_SET_BIT
 
-get $r2             // branch $r0 > $r2 -> WRITE_CHECK
-mov $rbc            // branch $r0 > $r2 -> WRITE_CHECK
-targ WRITE_CHECK    // branch $r0 > $r2 -> WRITE_CHECK
-bgt $r0             // branch $r0 > $r2 -> WRITE_CHECK
+get $r1             // branch $r3 > $r1 -> WRITE_CHECK
+mov $rbc            // branch $r3 > $r1 -> WRITE_CHECK
+targ WRITE_CHECK    // branch $r3 > $r1 -> WRITE_CHECK
+bgt $r3             // branch $r3 > $r1 -> WRITE_CHECK
 
 SUB_SET_BIT: // num >= div, so sub and set bit
 // 2-byte borrowed subtraction
-get $r0
-sub $r2
+get $r3
+sub $r1
 ccc
-get $r1
-subc $r3
+get $r2
+subc $r0
 // set bit with mod of index
 get $r7
 set $r6
@@ -108,9 +108,9 @@ mov $r6
 
 LOOP_CHECK:
 // 2-byte carry out right shift
-shr $r1
+shr $r2
 ccc
-shrc $r0
+shrc $r3
 dec $r7          // decrement index until 0
 targ DONE
 bez $r7          // done after index hits 0
