@@ -147,7 +147,7 @@ with open(assembly_file) as f:
             else:
                 cleaned.append(arr[0] + " $r0")  # will get converted to 0000
 
-write_file(assembly_file+"-cleaned", cleaned)
+write_file(assembly_file+"-cleaned.log", cleaned)
 
 # targ line expansion
 targ_expansion = []
@@ -161,7 +161,7 @@ for line in cleaned:
     else:
         targ_expansion.append(line)
 
-write_file(assembly_file+"-expanded", targ_expansion)
+write_file(assembly_file+"-expanded.log", targ_expansion)
 
 # line recording
 label_nums = dict()
@@ -179,7 +179,7 @@ for line in targ_expansion:
     else:
         unlabeled.append(line)
 
-write_file(assembly_file+"-unlabeled", unlabeled)
+write_file(assembly_file+"-unlabeled.log", unlabeled)
 
 print "Label line numbers"
 for label in label_nums:
@@ -202,7 +202,7 @@ for line in replaced_targ:
         replaced_targ[counter+3] = replacement[3]
     counter += 1
 
-write_file(assembly_file+"-full", replaced_targ)
+write_file(assembly_file+"-full.log", replaced_targ)
 
 # translate to machine code
 translated = []

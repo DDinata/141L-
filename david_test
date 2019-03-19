@@ -1,3 +1,4 @@
+acc 0
 acc 1
 mov $r0
 acc 15
