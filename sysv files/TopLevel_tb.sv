@@ -48,19 +48,24 @@ initial begin
 
 // launch program in DUT
   #10ns start = 0;
-// Wait for done flag, then display results
+
   wait (halt);
-  start = 1;
   #10ns $display("p1 input h: %h %h", DUT.data_mem1.core[8], DUT.data_mem1.core[9]);
   #10ns $display("p1 output h: %h %h", DUT.data_mem1.core[10], DUT.data_mem1.core[11]);
   // #10ns $display("p1 input b: %b %b", DUT.data_mem1.core[8], DUT.data_mem1.core[9]);
   // #10ns $display("p1 output b: %b %b", DUT.data_mem1.core[10], DUT.data_mem1.core[11]);
+  start = 1;
+  #10ns start = 0;
 
+  wait(halt);
   #100ns $display("p2 input h: %h %h %h", DUT.data_mem1.core[0], DUT.data_mem1.core[1], DUT.data_mem1.core[2]);
   #100ns $display("p2 output h: %h %h %h", DUT.data_mem1.core[4], DUT.data_mem1.core[5], DUT.data_mem1.core[6]);
   // #100ns $display("p2 input b: %b %b %b", DUT.data_mem1.core[0], DUT.data_mem1.core[1], DUT.data_mem1.core[2]);
   // #100ns $display("p2 output b: %b %b %b", DUT.data_mem1.core[4], DUT.data_mem1.core[5], DUT.data_mem1.core[6]);
+  start = 1;
+  #10ns start = 0;
 
+  wait(halt);
   #100ns $display("p3 input d: %d", {DUT.data_mem1.core[12],DUT.data_mem1.core[13]});
   #100ns $display("p3 output d: %d", DUT.data_mem1.core[14]);
   // #100ns $display("p3 output h: %h", DUT.data_mem1.core[14]);

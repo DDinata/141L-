@@ -15,6 +15,7 @@ logic paused;
   always @(posedge CLK) begin
     if (init) begin
       halt <= 0;
+      $display("STARTING");
     end
 
     if(!init && !halt) begin

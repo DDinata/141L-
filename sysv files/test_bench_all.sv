@@ -94,7 +94,7 @@ initial begin
 // preload operands and launch program 3
   #10ns start = 1;
 // insert operand
-  dat_in3 = 0;//65535;		   // *** try various values here ***
+  dat_in3 = 65535;//65535;		   // *** try various values here ***
 // *** change names of memory or its guts as needed ***
   d1.data_mem1.core[12] = dat_in3[15: 8];
   d1.data_mem1.core[13] = dat_in3[ 7: 0];

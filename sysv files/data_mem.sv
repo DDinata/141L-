@@ -29,7 +29,7 @@ module data_mem(
     else if (WriteMem) begin
       core[DataAddress] <= DataIn;
   	  // $display("Memory write M[%d] = %d (%b)",DataAddress,DataIn,DataIn);
-      // $display("----------------------------------------------");
+      $display("----------------------------------------------");
     end
     else if (ReadMem) begin
       // $display("----------------------------------------------");
