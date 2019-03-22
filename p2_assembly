@@ -1,7 +1,7 @@
 //program 2 - input addr 0-1,2, output addr 4-6
 
-// $r3|$r4|$r5|$r6 - div
 // $r0|$r1|$r2 - num
+// $r3|$r4|$r5|$r6 - div
 // $r11 - result setter
 // $r9 - index
 // $r8 - left shift amount
@@ -178,6 +178,7 @@ acc 1
 add $r11
 
 MEMSTORE:
-// store $r11 to mem 6
-acc 6
-st $r11
+acc 6    // store $r11 to mem 6
+st $r11  // store $r11 to mem 6
+acc 0    // clear $r11
+mov $r11 // clear $r11

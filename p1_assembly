@@ -1,7 +1,7 @@
 //program 1 - input addr 8-9, output addr 10-11
 
-// $r3|$r4|$r5 - div
 // $r0|$r1|$r2 - num
+// $r3|$r4|$r5 - div
 // $r11 - result setter
 // $r9 - index
 // $r8 - left shift amount
