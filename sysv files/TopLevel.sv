@@ -24,40 +24,40 @@ wire  [3:0] AluOp;
 wire  [1:0] ComparisonType;
 wire        AluImm;       // chose between ImmValue and RegSrc2
 
-wire  [7:0] MemWriteValue, // memory file input for st
-            MemAddr,       // memory location to ld/st
-  	   	    MemOut;	       // memory file output for ld
-wire        ReadMem,	     // data_memory read enable
-            WriteMem;	     // data_memory write enable
+wire  [7:0] MemWriteValue,   // memory file input for st
+            MemAddr,         // memory location to ld/st
+            MemOut;          // memory file output for ld
+wire        ReadMem,         // data_memory read enable
+            WriteMem;        // data_memory write enable
 
-wire        CarryOut,      // carry output from ALU
-            CarryIn,       // carry input to ALU = CarryInValue & UseCarryIn
-            CarryInValue,  // value current in R_CarryIn
-            UseCarryIn,    // whether we should select CarryIn
-            BranchEnable,	 // whether we should select comparison result
-            BranchTaken,	 // running branch isntruction & comparison true
-            WriteBranchDir,// whether we set branch dir bit
-            BranchDir;     // direction if branch taken - fixed to R_Bits[3]
-wire  [7:0] BranchTargetRegister;  // fixed register for jumping size
+wire        CarryOut,        // carry output from ALU
+            CarryIn,         // carry input to ALU = CarryInValue & UseCarryIn
+            CarryInValue,    // value current in R_CarryIn
+            UseCarryIn;      // whether we should select CarryIn
+
+wire        BranchEnable,    // whether we should select comparison result
+            BranchTaken,     // comparison result
+            BranchDirection; // direction if branch taken - R_Acc[0]
+wire  [7:0] BranchAmount;    // register for jump amount
 
 logic[15:0] cycle_ct;	   // standalone; NOT PC!
 
-// Fetch = Program Counter + Instruction ROM
-// Program Counter
-  assign BranchTaken = BranchEnable & AluOut[0];
+  // Program Counter
+  assign BranchTaken = AluOut[0];
   PC PC1 (
 	.init(start),
 	.halt,
+  .BranchEnable,
   .BranchTaken,
-  .JumpDir(BranchDir),
-  .JumpAmount(BranchTargetRegister),
+  .JumpDirection(BranchDirection),
+  .JumpAmount(BranchAmount),
 	.CLK,
 	.PC
 	);
 
-// Control decoder
+  // Control decoder
   control_unit ctr1 (
-	.Instruction,    // from instr_ROM
+	.Instruction,
   .ReadMem,
 	.WriteMem,
   .ReadReg,
@@ -71,8 +71,7 @@ logic[15:0] cycle_ct;	   // standalone; NOT PC!
   .AluImm,
 	.ImmValue,
 	.WriteImm,
-	.BranchEnable,
-  .WriteBranchDir
+	.BranchEnable
   );
 
   // instruction ROM
@@ -81,7 +80,6 @@ logic[15:0] cycle_ct;	   // standalone; NOT PC!
 	.InstOut       (Instruction)
 	);
 
-  // reg file
   // mux for RegWriteValue input
   // assign begin
   //   if (ReadMem) RegWriteValue = MemOut;
@@ -93,10 +91,13 @@ logic[15:0] cycle_ct;	   // standalone; NOT PC!
   //   end
   //   else RegWriteValue = AluOut;
   // end
-  assign RegWriteValue = ReadMem ? MemOut :
-                         WriteImm ? ImmValue:
-                         ReadReg ? RegOut1 :
-                                   AluOut;
+
+
+  // reg file
+  assign RegWriteValue = ReadMem ? MemOut :    // LD
+                         WriteImm ? ImmValue:  // ACC
+                         ReadReg ? RegOut1 :   // MOV, GET
+                                   AluOut;     // ALU operation
 	reg_file reg_file1 (
 		.CLK,
     .init(start),
@@ -109,8 +110,8 @@ logic[15:0] cycle_ct;	   // standalone; NOT PC!
 		.Out2 (RegOut2),
     .CarryOutValue (CarryOut),
     .CarryInValue,
-    .BranchDir,
-    .BranchTargetRegister
+    .BranchDirection,
+    .BranchAmount
 	);
 
   assign AluIn1 = RegOut1;						          // connect RF out to ALU in
@@ -123,7 +124,6 @@ logic[15:0] cycle_ct;	   // standalone; NOT PC!
 	  .CarryIn,
 	  .AluOut,
 	  .CarryOut,
-    .WriteBranchDir,
 	  .ComparisonType
 	);
 

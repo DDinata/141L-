@@ -15,7 +15,8 @@ $display("L: %b", l);
 l = 2'b00;
 $display("L: %b", l);
 
-$display("b: %b", 0 ? 0 : 1);
+$display("b: %1d", 0 ? 8 : 9);
+$display("b: %1d", 1 ? 8 : 9);
 
 $display("x : %b", x);
 $display("x val: %x", x);

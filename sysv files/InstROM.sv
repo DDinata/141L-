@@ -11,7 +11,7 @@
 module InstROM (
   input       [9:0] InstAddress,
   output logic[8:0] InstOut);
-  logic[8:0] inst_rom[2**(9)];
+  logic[8:0] inst_rom[2**(10)];
   always_comb InstOut = inst_rom[InstAddress];
 
   initial begin		                  // load from external text file

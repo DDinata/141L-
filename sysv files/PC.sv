@@ -1,27 +1,55 @@
 module PC(
   input init,
         CLK,
+        BranchEnable,
         BranchTaken,
-        JumpDir,
+        JumpDirection,
   input [7:0] JumpAmount,
 
   output logic halt,
   output logic [9:0] PC = 0
 );
 
-  always @(posedge CLK) begin
-    if(!init) begin
-      $display("PC: %d", PC);
-      if (BranchTaken)
-        if (JumpDir)
-      	  PC <= PC + JumpAmount;
-        else
-          PC <= PC - JumpAmount;
-      else
-        PC <= PC + 1;
+logic paused;
 
-      if (PC == 7)
+  always @(posedge CLK) begin
+    if (init) begin
+      halt <= 0;
+    end
+
+    if(!init && !halt) begin
+      //$display("----------------------------------------------PC: %3d", PC);
+      // $display("PC %3d -> %3d", PC-1, PC);
+      if (BranchEnable) begin
+        if (BranchTaken) begin
+          if (JumpDirection) PC <= PC + JumpAmount;
+          else PC <= PC - JumpAmount;
+          // $display("Branch taken");
+          // $display("Direction: %1d Amount: %4d", JumpDirection, JumpAmount);
+        end
+        else begin
+          // $display("Branch not taken");
+          PC <= PC + 1;
+        end
+      end
+      else PC <= PC + 1;
+
+      if (PC == 168) begin
+        PC <= PC + 1;
         halt <= 1;
+        $display("HALTING");
+      end
+      if (PC == 365) begin
+        PC <= PC + 1;
+        halt <= 1;
+        $display("HALTING");
+      end
+      if (PC == 590) begin
+        PC <= PC + 1;
+        halt <= 1;
+        $display("HALTING");
+        halt <= 1;
+      end
     end
   end
 
