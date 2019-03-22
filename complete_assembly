@@ -175,6 +175,13 @@ mov $r8
 mov $r9
 mov $r11 // PROGRAM 1 HALT
 
+// clock buffer
+acc 0
+acc 0
+acc 0
+acc 0
+acc 0
+
 
 // PROGRAM 2
 //program 2 - input addr 0-1,2, output addr 4-6
@@ -372,6 +379,13 @@ mov $r6
 mov $r8
 mov $r9
 mov $r11 // PROGRAM 2 HALT
+
+// clock buffer
+acc 0
+acc 0
+acc 0
+acc 0
+acc 0
 
 
 // PROGRAM 3
@@ -612,3 +626,10 @@ st $r4
 
 FINISH_3:
 acc 0 // PROGRAM 3 HALT
+
+// clock buffer
+acc 0
+acc 0
+acc 0
+acc 0
+acc 0
