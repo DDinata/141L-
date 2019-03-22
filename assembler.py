@@ -1,3 +1,4 @@
+debug = True
 import sys
 import os
 
@@ -143,7 +144,7 @@ with open(assembly_file) as f:
         elif instr == "TARG":
             cleaned.append("TARG " + arr[1])
         else:
-            if len(arr) == 2:
+            if instr != "CCC":
                 cleaned.append(line)
             else:
                 cleaned.append(arr[0] + " $r0")  # will get converted to 0000
@@ -211,6 +212,7 @@ write_file(assembly_file+"-full.log", replaced_targ)
 # translate to machine code
 translated = []
 for line in replaced_targ:
+    if debug: print line
     arr = line.split(" ")
     code = translate(arr[0], arr[1])
     translated.append(code)

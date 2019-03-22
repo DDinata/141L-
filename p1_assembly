@@ -8,46 +8,45 @@
 // $r8 - left shift amount
 
 acc 8
-ld $r2 // div[15:8]
+ld $r2 // $r2 = div[15:8]
 acc 9
-ld $r3 // div[7:0]
+ld $r3 // $r3 = div[7:0]
 
-// acc 128
-// TEMP
+// set $r0 to 80
 acc 8
 shl $ra
 shl $ra
 shl $ra
 shl $ra
-mov $r0 // num[15:8] = 10000000
+mov $r0 // num[15:8] = 80
 acc 0
-mov $r1 // num[7:0] = 00000000
+mov $r1 // num[7:0] = 00
 
 // Generate "index" index and left shift amount
 // $r7 = index
 // $r8 = lsa
 // we want index = lsa = 15 - overall mmm
 
+// set $r7 = $r8 = 7-m or 15-m
+
 targ LEFTNZ
-bez $r3
-// if div[15:8] > 0
-acc 15
-mov $r7 // index = 15
-mov $r8 // lsa = 15
-mmm $r3
-sub $r7 // index = 15-m
-sub $r8 // lsa = 15-m
+bez $r2 // check if div[15:8] == 0 (lsa between 7-0)
+acc 7   // if div[15:8] > 0
+mov $r7 // index = 7 (max possible val)
+mov $r8 // lsa = 7 (max possible val)
+mmm $r2 // get mmm from msw
+sub $r7 // index = 7-m
+sub $r8 // lsa = 7-m
 targ LEFT_SHIFT_PREP
 bez $rz
 
 LEFTNZ:
-// if div[15:8] == 0
-acc 7
-mov $r7 // index = 7
-mov $r8 // lsa = 7
-mmm $r3
-sub $r7 // index = 7-m
-sub $r8 // lsa = 7-m
+acc 15  // if div[15:8] == 0 (lsa between 15-8)
+mov $r7 // index = 15
+mov $r8 // lsa = 15
+mmm $r3 // get mmm from lsw
+sub $r7 // index = 15-m
+sub $r8 // lsa = 15-m
 
 
 // left shifts $r2|$r3 until mmm of $r2 is 1
@@ -56,13 +55,12 @@ LEFT_SHIFT_PREP:
 targ MAIN_LOOP
 bez $r8 // dont loop if lsa = 0
 LEFT_SHIFT:
-// 2-byte carry out left shift
-shl $r3
-ccc
-shlc $r2
-dec $r8
+shl $r3  // 2-byte carry out left shift
+ccc      // 2-byte carry out left shift
+shlc $r2 // 2-byte carry out left shift
+dec $r8  // lsa -= 1
 targ LEFT_SHIFT
-bnz $r8
+bnz $r8  // keep shifting if lsa not zero
 
 // $r2|$r3 is left shifted all the way
 // $r7 contains how much we shifted
@@ -70,7 +68,7 @@ bnz $r8
 MAIN_LOOP:
 
 // if num < div, skip over SET_BIT and go to WRITE_CHECK
-get $r0             // branch $r2 > $rccc -> WRITE_CHECK
+get $r0             // branch $r2 > $r0 -> WRITE_CHECK
 mov $rbc            // branch $r2 > $r0 -> WRITE_CHECK
 targ WRITE_CHECK    // branch $r2 > $r0 -> WRITE_CHECK
 bgt $r2             // branch $r2 > $r0 -> WRITE_CHECK
@@ -84,15 +82,13 @@ targ WRITE_CHECK    // branch $r3 > $r1 -> WRITE_CHECK
 bgt $r3             // branch $r3 > $r1 -> WRITE_CHECK
 
 SUB_SET_BIT: // num >= div, so sub and set bit
-// 2-byte borrowed subtraction
-get $r3
-sub $r1
-ccc
-get $r2
-subc $r0
-// set bit with mod of index
-get $r7
-set $r6
+get $r3  // 2-byte borrowed subtraction
+sub $r1  // 2-byte borrowed subtraction
+ccc      // 2-byte borrowed subtraction
+get $r2  // 2-byte borrowed subtraction
+subc $r0 // 2-byte borrowed subtraction
+get $r7  // set bit with mod of index
+set $r6  // set bit with mod of index
 
 // want index == 8 -> then write the left half of output
 WRITE_CHECK:
@@ -107,15 +103,14 @@ acc 0
 mov $r6
 
 LOOP_CHECK:
-// 2-byte carry out right shift
-shr $r2
-ccc
-shrc $r3
-dec $r7          // decrement index until 0
+shr $r2  // 2-byte carry out right shift
+ccc      // 2-byte carry out right shift
+shrc $r3 // 2-byte carry out right shift
+dec $r7  // index -= 1
 targ DONE
-bez $r7          // done after index hits 0
+bez $r7  // done if index == 0
 targ MAIN_LOOP
-bez $rz         // otherwise, jmp to MAIN_LOOP for another iter
+bez $rz  // otherwise, jmp to MAIN_LOOP for another iter
 
 
 DONE:
