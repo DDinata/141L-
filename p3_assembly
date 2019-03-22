@@ -1,5 +1,4 @@
 // program 3 - input addr 12-13, output addr 14
-// TODO: CORNER CHECKS
 
 // $r0|$r1|$r2 - x_0
 // $r3|$r4|$r5 - x_n
@@ -20,17 +19,17 @@ mov $r7 // set counter to 128
 acc 15
 bcc 15
 mov $rbc
-targ SQRT_LOOP
+targ SQRT_LOOP_3
 bne $r3
 acc 15
 bcc 15
 mov $r4
 acc 14
 st $r4
-targ FINISH
+targ FINISH_3
 bez $rz
 
-SQRT_LOOP:
+SQRT_LOOP_3:
 
 acc 0  // st r3-r5 -> mem16-mem18
 bcc 1  // st r3-r5 -> mem16-mem18
@@ -56,7 +55,7 @@ mov $r2 // ld x_0 -> r3-r5
 // set $r8 = 7-m or 15-m
 // set $r9 = $r8 + 8 to account for extra word
 
-targ LEFTNZ
+targ LEFTNZ_3
 bez $r3 // check if div[15:8] == 0 (lsa between 7-0)
 acc 7   // if div[15:8] > 0
 mov $r9 // index = 7 (max possible val)
@@ -64,10 +63,10 @@ mov $r8 // lsa = 7 (max possible val)
 mmm $r3 // get mmm from div[15:8]
 sub $r9 // index = 7-m
 sub $r8 // lsa = 7-m
-targ LEFT_SHIFT_PREP
+targ LREF_SHIFT_PREP_3
 bez $rz
 
-LEFTNZ:
+LEFTNZ_3:
 acc 15  // if div[15:8] == 0 (lsa between 15-8)
 mov $r9 // index = 15
 mov $r8 // lsa = 15
@@ -76,22 +75,22 @@ sub $r9 // index = 15-m
 sub $r8 // lsa = 15-m
 
 
-LEFT_SHIFT_PREP:
+LREF_SHIFT_PREP_3:
 acc 8    // index+=8 to account for extra word
 add $r9  // index+=8 to account for extra word
-targ MAIN_LOOP
+targ MAIN_LOOP_3
 bez $r8 // dont loop if lsa = 0
 
 // left shifts $r3|$r4|$r5 until mmm of $r3 is msb
 // dec left shift amount each iter
-LEFT_SHIFT:
+LEFT_SHIFT_3:
 shl $r5  // 3-byte carry out left shift
 ccc      // 3-byte carry out left shift
 shlc $r4 // 3-byte carry out left shift
 ccc      // 3-byte carry out left shift
 shlc $r3 // 3-byte carry out left shift
 dec $r8  // lsa--
-targ LEFT_SHIFT
+targ LEFT_SHIFT_3
 bnz $r8  // keep shifting if lsa not zero
 
 
@@ -101,31 +100,31 @@ bnz $r8  // keep shifting if lsa not zero
 acc 0    // clear $r11
 mov $r11 // clear $r11
 
-MAIN_LOOP:
+MAIN_LOOP_3:
 
-// if num < div, skip over SET_BIT and go to WRITE_CHECK
-get $r0             // branch $r3 > $r0 -> WRITE_CHECK
-mov $rbc            // branch $r3 > $r0 -> WRITE_CHECK
-targ WRITE_CHECK    // branch $r3 > $r0 -> WRITE_CHECK
-bgt $r3             // branch $r3 > $r0 -> WRITE_CHECK
+// if num < div, skip over SET_BIT and go to WRITE_CHECK_3
+get $r0             // branch $r3 > $r0 -> WRITE_CHECK_3
+mov $rbc            // branch $r3 > $r0 -> WRITE_CHECK_3
+targ WRITE_CHECK_3    // branch $r3 > $r0 -> WRITE_CHECK_3
+bgt $r3             // branch $r3 > $r0 -> WRITE_CHECK_3
 
-targ SUB_SET_BIT    // branch $r3 < $r0 -> SUB_SET_BIT
-blt $r3             // branch $r3 < $r0 -> SUB_SET_BIT
+targ SUB_SET_BIT_3    // branch $r3 < $r0 -> SUB_SET_BIT_3
+blt $r3             // branch $r3 < $r0 -> SUB_SET_BIT_3
 
-get $r1             // branch $r4 > $r1 -> WRITE_CHECK
-mov $rbc            // branch $r4 > $r1 -> WRITE_CHECK
-targ WRITE_CHECK    // branch $r4 > $r1 -> WRITE_CHECK
-bgt $r4             // branch $r4 > $r1 -> WRITE_CHECK
+get $r1             // branch $r4 > $r1 -> WRITE_CHECK_3
+mov $rbc            // branch $r4 > $r1 -> WRITE_CHECK_3
+targ WRITE_CHECK_3    // branch $r4 > $r1 -> WRITE_CHECK_3
+bgt $r4             // branch $r4 > $r1 -> WRITE_CHECK_3
 
-targ SUB_SET_BIT    // branch $r4 < $r4 -> SUB_SET_BIT
-blt $r4             // branch $r4 < $r4 -> SUB_SET_BIT
+targ SUB_SET_BIT_3    // branch $r4 < $r4 -> SUB_SET_BIT_3
+blt $r4             // branch $r4 < $r4 -> SUB_SET_BIT_3
 
-get $r2             // branch $r5 > $r2 -> WRITE_CHECK
-mov $rbc            // branch $r5 > $r2 -> WRITE_CHECK
-targ WRITE_CHECK    // branch $r5 > $r2 -> WRITE_CHECK
-bgt $r5             // branch $r5 > $r2 -> WRITE_CHECK
+get $r2             // branch $r5 > $r2 -> WRITE_CHECK_3
+mov $rbc            // branch $r5 > $r2 -> WRITE_CHECK_3
+targ WRITE_CHECK_3    // branch $r5 > $r2 -> WRITE_CHECK_3
+bgt $r5             // branch $r5 > $r2 -> WRITE_CHECK_3
 
-SUB_SET_BIT: // num >= div, so sub and set bit
+SUB_SET_BIT_3: // num >= div, so sub and set bit
 get $r5  // 3-byte borrowed subtraction
 sub $r2  // 3-byte borrowed subtraction
 ccc      // 3-byte borrowed subtraction
@@ -137,45 +136,45 @@ subc $r0 // 3-byte borrowed subtraction
 get $r9  // set bit with mod of index
 set $r11  // set bit with mod of index
 
-WRITE_CHECK:
+WRITE_CHECK_3:
 // want index == 16 -> then write output
 acc 0     // check index == 16
 bcc 1     // check index == 16
 mov $rbc  // check index == 16
-targ WRITE_CHECK_AGAIN
-bne $r9   // if index != 16, go to WRITE_CHECK_AGAIN
+targ WRITE_CHECK_AGAIN_3
+bne $r9   // if index != 16, go to WRITE_CHECK_AGAIN_3
 acc 3     // index == 16, storing $r11 to mem 19
 bcc 1     // index == 16, storing $r11 to mem 19
 st $r11   // index == 16, storing $r11 to mem 19
 acc 0     // clear $r11
 mov $r11  // clear $r11
 
-WRITE_CHECK_AGAIN:
+WRITE_CHECK_AGAIN_3:
 // index != 16, but check if index == 8
 acc 8     // check index == 8
 mov $rbc  // check index == 8
-targ LOOP_CHECK
-bne $r9   // if index != 8, go to LOOP_CHECK
+targ LOOP_CHECK_3
+bne $r9   // if index != 8, go to LOOP_CHECK_3
 acc 4     // index == 8, storing $r11 to mem 20
 bcc 1     // index == 8, storing $r11 to mem 20
 st $r11   // index == 8, storing $r11 to mem 20
 acc 0     // clear $r11
 mov $r11  // clear $r11
 
-LOOP_CHECK:
+LOOP_CHECK_3:
 shr $r3  // 3-byte carry out right shift
 ccc      // 3-byte carry out right shift
 shrc $r4 // 3-byte carry out right shift
 ccc      // 3-byte carry out right shift
 shrc $r5 // 3-byte carry out right shift
-targ MEMSTORE
-bez $r9  // MEMSTORE if index == 0
+targ MEMSTORE_3
+bez $r9  // MEMSTORE_3 if index == 0
 dec $r9  // otherwise, index--
-targ MAIN_LOOP
-bez $rz  // jmp to MAIN_LOOP for another iter
+targ MAIN_LOOP_3
+bez $rz  // jmp to MAIN_LOOP_3 for another iter
 
 
-MEMSTORE:
+MEMSTORE_3:
 acc 5     // store $r11 to mem 21
 bcc 1     // store $r11 to mem 21
 st $r11   // store $r11 to mem 21
@@ -219,7 +218,7 @@ ccc      // 3-byte right shift for halving
 shrc $r5 // 3-byte right shift for halving
 
 dec $r7
-targ SQRT_LOOP
+targ SQRT_LOOP_3
 bnz $r7
 
 shr $r5
@@ -234,5 +233,5 @@ add $r4
 acc 14
 st $r4
 
-FINISH:
+FINISH_3:
 acc 0

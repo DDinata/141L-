@@ -13,12 +13,8 @@ ld $r4  // $r4 = div[7:0]
 acc 0   // $r5 = div[-1:-8] = 00
 mov $r5 // $r5 = div[-1:-8] = 00
 
-acc 8   // $r0 = num[15:8] = 80
-shl $ra // $r0 = num[15:8] = 80
-shl $ra // $r0 = num[15:8] = 80
-shl $ra // $r0 = num[15:8] = 80
-shl $ra // $r0 = num[15:8] = 80
-mov $r0 // $r0 = num[15:8] = 80
+acc 0   // $r0 = num[15:8] = 80
+bcc 8   // $r0 = num[15:8] = 80
 acc 0   // $r1 = num[7:0] = 00
 mov $r1 // $r1 = num[7:0] = 00
 acc 0   // $r2 = num[-1:-8] = 00
@@ -164,3 +160,15 @@ MEMSTORE:
 // store $r11 to mem 11
 acc 11
 st $r11
+
+// clear out all registers used
+acc 0
+mov $r0
+mov $r1
+mov $r2
+mov $r3
+mov $r4
+mov $r5
+mov $r8
+mov $r9
+mov $r11

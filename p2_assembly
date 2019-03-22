@@ -35,7 +35,7 @@ mov $r8 // lsa = 7
 mmm $r3 // get mmm from div
 sub $r8 // lsa = 7-m
 
-targ SKIP_CORNER
+targ SKIP_CORNER_2
 bnz $r3 // if div == 0 return 0xffffff
 acc 15
 bcc 15
@@ -46,21 +46,21 @@ acc 5
 st $r11
 acc 6
 st $r11
-targ MEMSTORE
+targ MEMSTORE_2
 bez $rz
-SKIP_CORNER:
+SKIP_CORNER_2:
 acc 0
 
-LEFT_SHIFT_PREP:
-targ MAIN_LOOP
+
+targ MAIN_LOOP_2
 bez $r8 // dont loop if lsa = 0
 
 // left shifts $r3 until mmm of $r3 is 1
 // dec left shift amount each iter
-LEFT_SHIFT:
+LEFT_SHIFT_2:
 shl $r3  // left shift div
 dec $r8  // lsa--
-targ LEFT_SHIFT
+targ LEFT_SHIFT_2
 bnz $r8  // keep shifting if lsa not zero
 
 
@@ -68,31 +68,31 @@ bnz $r8  // keep shifting if lsa not zero
 // $r3|$r4|$r5|$r6 is left shifted all the way
 // $r9 contains index
 
-MAIN_LOOP:
+MAIN_LOOP_2:
 
-// if num < div, skip over SET_BIT and go to WRITE_CHECK
-get $r0             // branch $r3 > $r0 -> WRITE_CHECK
-mov $rbc            // branch $r3 > $r0 -> WRITE_CHECK
-targ WRITE_CHECK    // branch $r3 > $r0 -> WRITE_CHECK
-bgt $r3             // branch $r3 > $r0 -> WRITE_CHECK
+// if num < div, skip over SET_BIT and go to WRITE_CHECK_2
+get $r0             // branch $r3 > $r0 -> WRITE_CHECK_2
+mov $rbc            // branch $r3 > $r0 -> WRITE_CHECK_2
+targ WRITE_CHECK_2    // branch $r3 > $r0 -> WRITE_CHECK_2
+bgt $r3             // branch $r3 > $r0 -> WRITE_CHECK_2
 
-targ SUB_SET_BIT    // branch $r3 < $r0 -> SUB_SET_BIT
-blt $r3             // branch $r3 < $r0 -> SUB_SET_BIT
+targ SUB_SET_BIT_2    // branch $r3 < $r0 -> SUB_SET_BIT_2
+blt $r3             // branch $r3 < $r0 -> SUB_SET_BIT_2
 
-get $r1             // branch $r4 > $r1 -> WRITE_CHECK
-mov $rbc            // branch $r4 > $r1 -> WRITE_CHECK
-targ WRITE_CHECK    // branch $r4 > $r1 -> WRITE_CHECK
-bgt $r4             // branch $r4 > $r1 -> WRITE_CHECK
+get $r1             // branch $r4 > $r1 -> WRITE_CHECK_2
+mov $rbc            // branch $r4 > $r1 -> WRITE_CHECK_2
+targ WRITE_CHECK_2    // branch $r4 > $r1 -> WRITE_CHECK_2
+bgt $r4             // branch $r4 > $r1 -> WRITE_CHECK_2
 
-targ SUB_SET_BIT    // branch $r4 < $r4 -> SUB_SET_BIT
-blt $r4             // branch $r4 < $r4 -> SUB_SET_BIT
+targ SUB_SET_BIT_2    // branch $r4 < $r4 -> SUB_SET_BIT_2
+blt $r4             // branch $r4 < $r4 -> SUB_SET_BIT_2
 
-get $r2             // branch $r5 > $r2 -> WRITE_CHECK
-mov $rbc            // branch $r5 > $r2 -> WRITE_CHECK
-targ WRITE_CHECK    // branch $r5 > $r2 -> WRITE_CHECK
-bgt $r5             // branch $r5 > $r2 -> WRITE_CHECK
+get $r2             // branch $r5 > $r2 -> WRITE_CHECK_2
+mov $rbc            // branch $r5 > $r2 -> WRITE_CHECK_2
+targ WRITE_CHECK_2    // branch $r5 > $r2 -> WRITE_CHECK_2
+bgt $r5             // branch $r5 > $r2 -> WRITE_CHECK_2
 
-SUB_SET_BIT: // num >= div, so sub and set bit
+SUB_SET_BIT_2: // num >= div, so sub and set bit
 get $r5  // 3-byte borrowed subtraction
 sub $r2  // 3-byte borrowed subtraction
 ccc      // 3-byte borrowed subtraction
@@ -104,30 +104,30 @@ subc $r0 // 3-byte borrowed subtraction
 get $r9  // set bit with mod of index
 set $r11  // set bit with mod of index
 
-WRITE_CHECK:
+WRITE_CHECK_2:
 // want index == 16 -> then write output
 acc 0     // check index == 16
 bcc 1     // check index == 16
 mov $rbc  // check index == 16
-targ WRITE_CHECK_AGAIN
-bne $r9   // if index != 16, go to WRITE_CHECK_AGAIN
+targ WRITE_CHECK_AGAIN_2
+bne $r9   // if index != 16, go to WRITE_CHECK_AGAIN_2
 acc 4     // index == 16, storing $r11 to mem 4
 st $r11   // index == 16, storing $r11 to mem 4
 acc 0     // clear $r11
 mov $r11  // clear $r11
 
-WRITE_CHECK_AGAIN:
+WRITE_CHECK_AGAIN_2:
 // index != 16, but check if index == 8
 acc 8     // check index == 8
 mov $rbc  // check index == 8
-targ LOOP_CHECK
-bne $r9   // if index != 8, go to LOOP_CHECK
+targ LOOP_CHECK_2
+bne $r9   // if index != 8, go to LOOP_CHECK_2
 acc 5     // index == 8, storing $r11 to mem 5
 st $r11   // index == 8, storing $r11 to mem 5
 acc 0     // clear $r11
 mov $r11  // clear $r11
 
-LOOP_CHECK:
+LOOP_CHECK_2:
 shr $r3  // 4-byte carry out right shift
 ccc      // 4-byte carry out right shift
 shrc $r4 // 4-byte carry out right shift
@@ -135,50 +135,61 @@ ccc      // 4-byte carry out right shift
 shrc $r5 // 4-byte carry out right shift
 ccc      // 4-byte carry out right shift
 shrc $r6 // 4-byte carry out right shift
-targ PRECISION
-bez $r9  // precision if index == 0
+targ PRECISION_2
+bez $r9  // PRECISION_2 if index == 0
 dec $r9  // otherwise, index--
-targ MAIN_LOOP
-bez $rz  // jmp to MAIN_LOOP for another iter
+targ MAIN_LOOP_2
+bez $rz  // jmp to MAIN_LOOP_2 for another iter
 
 
-PRECISION:
+PRECISION_2:
 
-get $r0             // branch $r3 > $r0 -> MEMSTORE
-mov $rbc            // branch $r3 > $r0 -> MEMSTORE
-targ MEMSTORE       // branch $r3 > $r0 -> MEMSTORE
-bgt $r3             // branch $r3 > $r0 -> MEMSTORE
+get $r0             // branch $r3 > $r0 -> MEMSTORE_2
+mov $rbc            // branch $r3 > $r0 -> MEMSTORE_2
+targ MEMSTORE_2       // branch $r3 > $r0 -> MEMSTORE_2
+bgt $r3             // branch $r3 > $r0 -> MEMSTORE_2
 
-targ ROUND_UP       // branch $r3 < $r0 -> ROUND_UP
-blt $r3             // branch $r3 < $r0 -> ROUND_UP
+targ ROUND_UP_2       // branch $r3 < $r0 -> ROUND_UP_2
+blt $r3             // branch $r3 < $r0 -> ROUND_UP_2
 
-get $r1             // branch $r4 > $r1 -> MEMSTORE
-mov $rbc            // branch $r4 > $r1 -> MEMSTORE
-targ MEMSTORE       // branch $r4 > $r1 -> MEMSTORE
-bgt $r4             // branch $r4 > $r1 -> MEMSTORE
+get $r1             // branch $r4 > $r1 -> MEMSTORE_2
+mov $rbc            // branch $r4 > $r1 -> MEMSTORE_2
+targ MEMSTORE_2       // branch $r4 > $r1 -> MEMSTORE_2
+bgt $r4             // branch $r4 > $r1 -> MEMSTORE_2
 
-targ ROUND_UP       // branch $r4 < $r1 -> ROUND_UP
-blt $r4             // branch $r4 < $r1 -> ROUND_UP
+targ ROUND_UP_2       // branch $r4 < $r1 -> ROUND_UP_2
+blt $r4             // branch $r4 < $r1 -> ROUND_UP_2
 
-get $r2             // branch $r5 > $r2 -> MEMSTORE
-mov $rbc            // branch $r5 > $r2 -> MEMSTORE
-targ MEMSTORE       // branch $r5 > $r2 -> MEMSTORE
-bgt $r5             // branch $r5 > $r2 -> MEMSTORE
+get $r2             // branch $r5 > $r2 -> MEMSTORE_2
+mov $rbc            // branch $r5 > $r2 -> MEMSTORE_2
+targ MEMSTORE_2       // branch $r5 > $r2 -> MEMSTORE_2
+bgt $r5             // branch $r5 > $r2 -> MEMSTORE_2
 
-targ ROUND_UP       // branch $r5 < $r2 -> ROUND_UP
-blt $r5             // branch $r5 < $r2 -> ROUND_UP
+targ ROUND_UP_2       // branch $r5 < $r2 -> ROUND_UP_2
+blt $r5             // branch $r5 < $r2 -> ROUND_UP_2
 
-get $rz             // branch $r6 > $rz -> MEMSTORE
-mov $rbc            // branch $r6 > $rz -> MEMSTORE
-targ MEMSTORE       // branch $r6 > $rz -> MEMSTORE
-bgt $r6             // branch $r6 > $rz -> MEMSTORE
+get $rz             // branch $r6 > $rz -> MEMSTORE_2
+mov $rbc            // branch $r6 > $rz -> MEMSTORE_2
+targ MEMSTORE_2       // branch $r6 > $rz -> MEMSTORE_2
+bgt $r6             // branch $r6 > $rz -> MEMSTORE_2
 
-ROUND_UP:
+ROUND_UP_2:
 acc 1
 add $r11
 
-MEMSTORE:
+MEMSTORE_2:
 acc 6    // store $r11 to mem 6
 st $r11  // store $r11 to mem 6
-acc 0    // clear $r11
-mov $r11 // clear $r11
+
+// clear out all registers used
+acc 0
+mov $r0
+mov $r1
+mov $r2
+mov $r3
+mov $r4
+mov $r5
+mov $r6
+mov $r8
+mov $r9
+mov $r11
