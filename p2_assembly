@@ -25,8 +25,8 @@ mov $r2 // $r2 = num[-1:-8] = 00
 // set $r9 = 23 - m
 // set $r8 = 7 - m
 
-acc 0   // index = 23
-bcc 7   // index = 23
+acc 7   // index = 23
+bcc 1   // index = 23
 mov $r9 // index = 23
 mmm $r3 // get mmm from div
 sub $r9 // index = 23-m
@@ -113,11 +113,6 @@ targ WRITE_CHECK_AGAIN
 bne $r9   // if index != 16, go to WRITE_CHECK_AGAIN
 acc 4     // index == 16, storing $r11 to mem 4
 st $r11   // index == 16, storing $r11 to mem 4
-acc 0     // clear $r11
-mov $r11  // clear $r11
-
-targ MEMSTORE
-bez $rz
 acc 0     // clear $r11
 mov $r11  // clear $r11
 
