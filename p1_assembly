@@ -1,5 +1,4 @@
 //program 1 - input addr 8-9, output addr 10-11
-// TODO: CORNER CHECKS (0, 1, mmm is 15)
 
 // $r3|$r4|$r5 - div
 // $r0|$r1|$r2 - num
@@ -63,11 +62,12 @@ bez $rz
 SKIP_CORNER:
 acc 0
 
-// left shifts $r3|$r4 until mmm of $r3 is 1
-// dec left shift amount each iter
 LEFT_SHIFT_PREP:
 targ MAIN_LOOP
 bez $r8 // dont loop if lsa = 0
+
+// left shifts $r3|$r4 until mmm of $r3 is 1
+// dec left shift amount each iter
 LEFT_SHIFT:
 shl $r4  // 2-byte carry out left shift
 ccc      // 2-byte carry out left shift
@@ -137,7 +137,7 @@ PRECISION:
 
 get $r0             // branch $r3 > $r0 -> MEMSTORE
 mov $rbc            // branch $r3 > $r0 -> MEMSTORE
-targ MEMSTORE         // branch $r3 > $r0 -> MEMSTORE
+targ MEMSTORE       // branch $r3 > $r0 -> MEMSTORE
 bgt $r3             // branch $r3 > $r0 -> MEMSTORE
 
 targ ROUND_UP       // branch $r3 < $r0 -> ROUND_UP
@@ -145,25 +145,22 @@ blt $r3             // branch $r3 < $r0 -> ROUND_UP
 
 get $r1             // branch $r4 > $r1 -> MEMSTORE
 mov $rbc            // branch $r4 > $r1 -> MEMSTORE
-targ MEMSTORE         // branch $r4 > $r1 -> MEMSTORE
+targ MEMSTORE       // branch $r4 > $r1 -> MEMSTORE
 bgt $r4             // branch $r4 > $r1 -> MEMSTORE
 
 targ ROUND_UP       // branch $r4 < $r1 -> ROUND_UP
 blt $r4             // branch $r4 < $r1 -> ROUND_UP
 
-get $r2             // branch $r5 > $r2 -> MEMSTORE
-mov $rbc            // branch $r5 > $r2 -> MEMSTORE
-targ MEMSTORE         // branch $r5 > $r2 -> MEMSTORE
-bgt $r5             // branch $r5 > $r2 -> MEMSTORE
+get $rz             // branch $r5 > $rz -> MEMSTORE
+mov $rbc            // branch $r5 > $rz -> MEMSTORE
+targ MEMSTORE       // branch $r5 > $rz -> MEMSTORE
+bgt $r5             // branch $r5 > $rz -> MEMSTORE
 
 ROUND_UP:
 acc 1
 add $r11
 
-// TODO: disgusting corner case of carry out = 1 -> ld mem 10 and inc and restore
-
 MEMSTORE:
-
 // store $r11 to mem 11
 acc 11
 st $r11

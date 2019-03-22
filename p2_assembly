@@ -1,0 +1,188 @@
+//program 2 - input addr 0-1,2, output addr 4-6
+
+// $r3|$r4|$r5|$r6 - div
+// $r0|$r1|$r2 - num
+// $r11 - result setter
+// $r9 - index
+// $r8 - left shift amount
+
+acc 2   // $r3 = div
+ld $r3  // $r3 = div
+acc 0   // $r4 = 00
+mov $r4 // $r4 = 00
+mov $r5 // $r5 = 00
+
+acc 0   // $r0 = num[15:8]
+ld $r0  // $r0 = num[15:8]
+acc 1   // $r1 = num[7:0]
+ld $r1  // $r1 = num[7:0]
+acc 0   // $r2 = num[-1:-8] = 00
+mov $r2 // $r2 = num[-1:-8] = 00
+
+// Generate index and left shift amount
+// $r9 = index
+// $r8 = lsa
+// set $r9 = 23 - m
+// set $r8 = 7 - m
+
+acc 0   // index = 23
+bcc 7   // index = 23
+mov $r9 // index = 23
+mmm $r3 // get mmm from div
+sub $r9 // index = 23-m
+acc 7   // lsa = 7
+mov $r8 // lsa = 7
+mmm $r3 // get mmm from div
+sub $r8 // lsa = 7-m
+
+targ SKIP_CORNER
+bnz $r3 // if div == 0 return 0xffffff
+acc 15
+bcc 15
+mov $r11
+acc 4
+st $r11
+acc 5
+st $r11
+acc 6
+st $r11
+targ MEMSTORE
+bez $rz
+SKIP_CORNER:
+acc 0
+
+LEFT_SHIFT_PREP:
+targ MAIN_LOOP
+bez $r8 // dont loop if lsa = 0
+
+// left shifts $r3 until mmm of $r3 is 1
+// dec left shift amount each iter
+LEFT_SHIFT:
+shl $r3  // left shift div
+dec $r8  // lsa--
+targ LEFT_SHIFT
+bnz $r8  // keep shifting if lsa not zero
+
+
+
+// $r3|$r4|$r5|$r6 is left shifted all the way
+// $r9 contains index
+
+MAIN_LOOP:
+
+// if num < div, skip over SET_BIT and go to WRITE_CHECK
+get $r0             // branch $r3 > $r0 -> WRITE_CHECK
+mov $rbc            // branch $r3 > $r0 -> WRITE_CHECK
+targ WRITE_CHECK    // branch $r3 > $r0 -> WRITE_CHECK
+bgt $r3             // branch $r3 > $r0 -> WRITE_CHECK
+
+targ SUB_SET_BIT    // branch $r3 < $r0 -> SUB_SET_BIT
+blt $r3             // branch $r3 < $r0 -> SUB_SET_BIT
+
+get $r1             // branch $r4 > $r1 -> WRITE_CHECK
+mov $rbc            // branch $r4 > $r1 -> WRITE_CHECK
+targ WRITE_CHECK    // branch $r4 > $r1 -> WRITE_CHECK
+bgt $r4             // branch $r4 > $r1 -> WRITE_CHECK
+
+targ SUB_SET_BIT    // branch $r4 < $r4 -> SUB_SET_BIT
+blt $r4             // branch $r4 < $r4 -> SUB_SET_BIT
+
+get $r2             // branch $r5 > $r2 -> WRITE_CHECK
+mov $rbc            // branch $r5 > $r2 -> WRITE_CHECK
+targ WRITE_CHECK    // branch $r5 > $r2 -> WRITE_CHECK
+bgt $r5             // branch $r5 > $r2 -> WRITE_CHECK
+
+SUB_SET_BIT: // num >= div, so sub and set bit
+get $r5  // 3-byte borrowed subtraction
+sub $r2  // 3-byte borrowed subtraction
+ccc      // 3-byte borrowed subtraction
+get $r4  // 3-byte borrowed subtraction
+subc $r1 // 3-byte borrowed subtraction
+ccc      // 3-byte borrowed subtraction
+get $r3  // 3-byte borrowed subtraction
+subc $r0 // 3-byte borrowed subtraction
+get $r9  // set bit with mod of index
+set $r11  // set bit with mod of index
+
+WRITE_CHECK:
+// want index == 16 -> then write output
+acc 0     // check index == 16
+bcc 1     // check index == 16
+mov $rbc  // check index == 16
+targ WRITE_CHECK_AGAIN
+bne $r9   // if index != 16, go to WRITE_CHECK_AGAIN
+acc 4     // index == 16, storing $r11 to mem 4
+st $r11   // index == 16, storing $r11 to mem 4
+acc 0     // clear $r11
+mov $r11  // clear $r11
+
+targ MEMSTORE
+bez $rz
+acc 0     // clear $r11
+mov $r11  // clear $r11
+
+WRITE_CHECK_AGAIN:
+// index != 16, but check if index == 8
+acc 8     // check index == 8
+mov $rbc  // check index == 8
+targ LOOP_CHECK
+bne $r9   // if index != 8, go to LOOP_CHECK
+acc 5     // index == 8, storing $r11 to mem 5
+st $r11   // index == 8, storing $r11 to mem 5
+acc 0     // clear $r11
+mov $r11  // clear $r11
+
+LOOP_CHECK:
+shr $r3  // 4-byte carry out right shift
+ccc      // 4-byte carry out right shift
+shrc $r4 // 4-byte carry out right shift
+ccc      // 4-byte carry out right shift
+shrc $r5 // 4-byte carry out right shift
+ccc      // 4-byte carry out right shift
+shrc $r6 // 4-byte carry out right shift
+targ PRECISION
+bez $r9  // precision if index == 0
+dec $r9  // otherwise, index--
+targ MAIN_LOOP
+bez $rz  // jmp to MAIN_LOOP for another iter
+
+
+PRECISION:
+
+get $r0             // branch $r3 > $r0 -> MEMSTORE
+mov $rbc            // branch $r3 > $r0 -> MEMSTORE
+targ MEMSTORE       // branch $r3 > $r0 -> MEMSTORE
+bgt $r3             // branch $r3 > $r0 -> MEMSTORE
+
+targ ROUND_UP       // branch $r3 < $r0 -> ROUND_UP
+blt $r3             // branch $r3 < $r0 -> ROUND_UP
+
+get $r1             // branch $r4 > $r1 -> MEMSTORE
+mov $rbc            // branch $r4 > $r1 -> MEMSTORE
+targ MEMSTORE       // branch $r4 > $r1 -> MEMSTORE
+bgt $r4             // branch $r4 > $r1 -> MEMSTORE
+
+targ ROUND_UP       // branch $r4 < $r1 -> ROUND_UP
+blt $r4             // branch $r4 < $r1 -> ROUND_UP
+
+get $r2             // branch $r5 > $r2 -> MEMSTORE
+mov $rbc            // branch $r5 > $r2 -> MEMSTORE
+targ MEMSTORE       // branch $r5 > $r2 -> MEMSTORE
+bgt $r5             // branch $r5 > $r2 -> MEMSTORE
+
+targ ROUND_UP       // branch $r5 < $r2 -> ROUND_UP
+blt $r5             // branch $r5 < $r2 -> ROUND_UP
+
+get $rz             // branch $r6 > $rz -> MEMSTORE
+mov $rbc            // branch $r6 > $rz -> MEMSTORE
+targ MEMSTORE       // branch $r6 > $rz -> MEMSTORE
+bgt $r6             // branch $r6 > $rz -> MEMSTORE
+
+ROUND_UP:
+acc 1
+add $r11
+
+MEMSTORE:
+// store $r11 to mem 6
+acc 6
+st $r11
