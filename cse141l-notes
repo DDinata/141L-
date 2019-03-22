@@ -44,7 +44,7 @@ $ra - R_15, accumulator
 $rbc - R_14, branch comparison register
 $rbt - R_13, branch target register
 $rz - R_10, zero register
-R_11, special bit register: 0 - carry out, 1 - carry in, 2 - precision bit, 3 - branch direction bit
+R_12, special bit register: 0 - carry out, 1 - carry in, 2 - precision bit, 3 - branch direction bit
 
 reg_file, dat_mem, instr_rom done
 alu, decoder decent
